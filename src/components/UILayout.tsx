@@ -5,19 +5,18 @@ import { getStatusBarHeight } from 'react-native-status-bar-height'
 import Toolbar from './ui/Toolbar'
 import LayersToolbar from './ui/LayersToolbar'
 import LayersPanel from './ui/LayersPanel'
-import AppState from '../core/application/app-state'
 
 const UILayout = (
-  { appState }: { appState: AppState }
+  // { appState }: { appState: AppState }
 ) => <View style={{
   position: 'absolute',
   top: getStatusBarHeight(),
   left: 0,
 }}>
-    <Header title='Untitled' />
+    <Header />
     <Toolbar />
     <LayersToolbar />
-    <LayersPanel appState={appState} />
+    <LayersPanel />
   </View>
 
 export default UILayout

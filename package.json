@@ -10,6 +10,7 @@
   "dependencies": {
     "@types/color-convert": "^1.9.0",
     "@types/gl-matrix": "^2.4.5",
+    "@types/react-redux": "^7.1.9",
     "color-convert": "^2.0.1",
     "color-parse": "^1.3.8",
     "expo": "~37.0.3",
@@ -24,6 +25,8 @@
     "react-native-svg": "^12.1.0",
     "react-native-web": "~0.11.7",
     "react-native-webview": "8.1.1",
+    "react-redux": "^7.2.0",
+    "redux": "^4.0.5",
     "webgl-debug": "^2.0.1"
   },
   "devDependencies": {

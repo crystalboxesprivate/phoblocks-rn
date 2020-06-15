@@ -2,13 +2,20 @@ import React from 'react'
 import { View, Text } from 'react-native'
 import Icon from '../Icon'
 import Theme from '../Theme'
+import { connect } from 'react-redux'
+import { PhoblocksState } from '../../core/application/redux'
+import { ViewerAction } from '../../core/application/redux/viewer'
 
 const HeaderButton = ({ name }: { name: string }) => (
   <View style={{ marginLeft: 27 }}>
     <Icon name={name} fill={null}></Icon>
   </View>)
 
-const DocTitle = ({ title, scale }: { title: string, scale: number }) => (<View style={{
+const DocTitleComponent = ({ title, scale, setScale }: {
+  title: string,
+  scale: number,
+  setScale: (zoom: number) => any
+}) => (<View style={{
   flex: 1,
   flexDirection: 'row',
   alignItems: "center",
@@ -20,7 +27,6 @@ const DocTitle = ({ title, scale }: { title: string, scale: number }) => (<View 
     height: 24,
     backgroundColor: '#4A4A4A',
     borderRadius: 4,
-    // flex: 1,
     justifyContent: 'center',
     alignContent: 'center',
     alignItems: 'center',
@@ -28,17 +34,20 @@ const DocTitle = ({ title, scale }: { title: string, scale: number }) => (<View 
     textAlign: "center",
     color: Theme.textBright0,
     fontSize: 12,
-    // fontFamily: 'monospace',
-    // letterSpacing: '-0.05em',
-    // verticalAlign: 'middle',
   }}>{`${Math.floor(scale * 100)}%`}</Text></View>
 </View>)
+
+
+const DocTitle = connect((state: PhoblocksState) => ({
+  title: state.document.name,
+  scale: state.viewer.scale
+}), { setScale: ViewerAction.setZoom })(DocTitleComponent)
 
 const headerStyle = {
   ...Theme.font
 }
 
-const Header = ({ title }: { title: string }) => {
+const Header = () => {
   return (
     <View>
       <View style={{
@@ -76,7 +85,7 @@ const Header = ({ title }: { title: string }) => {
         flex: 1,
         justifyContent: 'center'
       }}>
-        <DocTitle title={title} scale={1.05} />
+        <DocTitle />
       </View>
     </View>
   )

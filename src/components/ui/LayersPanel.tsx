@@ -1,21 +1,27 @@
 import React from 'react'
 import { View, Text, ScrollView } from 'react-native'
-import AppState from '../../core/application/app-state'
 import Theme from '../Theme'
-import { ILayerHolder } from '../../core/application/layer'
+import { connect } from 'react-redux'
+import { PhoblocksState } from '../../core/application/redux'
+import { Layer, LayerType } from '../../core/application/redux/layer'
 import LayerView from './LayerView'
+import LayerProperties from './LayerProperties'
 
-const getLayers = (state: AppState, parent: ILayerHolder, level: number) => {
-  const layers = parent.layers.map((_, idx, arr) => {
-    const index = arr.length - 1 - idx
-    return (<View key={`layerListItem${index}`}>
+const getLayers = (entries: Layer[], children: number[], level: number) => {
+  const layers = children.map((_, idx, arr) => {
+    const id = arr[arr.length - 1 - idx]
+    const layer = entries[id]
+    const isOpenedGroup = layer.type === LayerType.GROUP && !layer.closed
+    console.log({ isOpenedGroup, layer })
+
+    return (<View key={`layerListItem${id}`}>
       <LayerView
-        layer={arr[index]}
-        selected={arr[index].id == state.activeLayer}
-        maskEditing={state.maskEditing}
+        layer={layer}
+        // selected={arr[index].id == state.activeLayer}
+        // maskEditing={state.maskEditing}
         level={level} />
-      {('layers' in arr[index] && !(arr[index] as unknown as ILayerHolder).closed)
-        ? <LayersList state={state} container={(arr[index] as unknown as ILayerHolder)} level={level + 1} />
+      {isOpenedGroup
+        ? <LayersList entries={entries} children={layer.layers} level={level + 1} />
         : null}
     </View>)
   })
@@ -23,27 +29,29 @@ const getLayers = (state: AppState, parent: ILayerHolder, level: number) => {
 }
 
 const LayersList = ({
-  state,
-  container,
+  entries,
+  children,
   level
 }: {
-  state: AppState,
-  container: ILayerHolder,
+  entries: Layer[],
+  children: number[],
   level: number
 }) => (
     <View>
-      {getLayers(state, container, level)}
+      {getLayers(entries, children, level)}
     </View>
   )
 
-const LayersListPanel = ({
+const _LayersListPanel = ({
   height,
   style,
-  state
+  entries,
+  children,
 }: {
   height: number,
   style: object,
-  state: AppState
+  entries: Layer[],
+  children: number[],
 }) => {
   return (
     <View key='layers' style={{
@@ -64,13 +72,18 @@ const LayersListPanel = ({
         Layers
       </Text>
       <ScrollView style={{ height: height }}>
-        <LayersList state={state} container={state.document} level={0} />
+        <LayersList entries={entries} children={children} level={0} />
       </ScrollView >
     </View>
   )
 }
 
-class LayersPanel extends React.Component<{ appState: AppState }, {}> {
+const LayersListPanel = connect((state: PhoblocksState) => ({
+  entries: state.document.layersRegistry.entries,
+  children: state.document.layersRegistry.docChildren
+}), {})(_LayersListPanel)
+
+class LayersPanel extends React.Component {
   holder: React.RefObject<unknown>
   divisor: number
 
@@ -101,8 +114,8 @@ class LayersPanel extends React.Component<{ appState: AppState }, {}> {
           <LayersListPanel
             height={444}
             style={{}}
-            state={this.props.appState}
           />
+          <LayerProperties />
         </View>
       </View>
     )

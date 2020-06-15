@@ -1,11 +1,13 @@
 import React from 'react'
-import { ILayer, Layer, ILayerHolder } from '../../core/application/layer'
+import { Layer, LayerType } from '../../core/application/redux/layer'
 import { View, Text } from 'react-native'
 import Icon from '../Icon'
 import Theme from '../Theme'
+import { connect } from 'react-redux'
+import { PhoblocksState } from '../../core/application/redux'
 
-const LayerView = ({ layer, selected, maskEditing, level }: {
-  layer: ILayer, selected: boolean, maskEditing: boolean, level: number
+const LayerView_ = ({ layer, level, selected, maskEditing }: {
+  layer: Layer, level: number, selected: boolean, maskEditing: boolean
 }) => {
   if (typeof (level) !== 'number') {
     level = 0
@@ -27,7 +29,7 @@ const LayerView = ({ layer, selected, maskEditing, level }: {
     }
   })()
 
-  const isGroup = 'layers' in layer
+  const isGroup = layer.type === LayerType.GROUP
   return (
     <View style={{
       flex: 1, flexDirection: 'row',
@@ -48,7 +50,7 @@ const LayerView = ({ layer, selected, maskEditing, level }: {
         }}>
           <View key='spacer' style={{
             transform: [{
-              rotate: `${(layer as unknown as ILayerHolder).closed ? -90 : 0}deg`
+              rotate: `${layer.closed ? -90 : 0}deg`
             }]
           }}>
             {isGroup ? <Icon name='groupTriangle' fill={null} /> : null}
@@ -81,5 +83,12 @@ const LayerView = ({ layer, selected, maskEditing, level }: {
       }</View>
     </View >)
 }
+
+const LayerView = connect((state: PhoblocksState, ownProps: any) => ({
+  layer: ownProps.layer as Layer,
+  level: ownProps.level as number,
+  selected: state.document.activeLayer === (ownProps.layer as Layer).id,
+  maskEditing: state.document.maskEditing
+}), {})(LayerView_)
 
 export default LayerView

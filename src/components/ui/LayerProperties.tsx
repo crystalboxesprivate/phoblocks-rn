@@ -2,6 +2,9 @@ import Theme from '../Theme'
 import { View, Text } from 'react-native'
 import Svg, { Path, Circle } from 'react-native-svg'
 import Slider from './Slider'
+import { Layer } from '../../core/application/redux/layer'
+import { connect } from 'react-redux'
+import { PhoblocksState } from '../../core/application/redux'
 
 
 const CollapseIcon = ({ isClosed }: { isClosed: boolean }) => (
@@ -100,11 +103,10 @@ const DropdownList = ({ title, items, selectedItem }: {
   </View>)
 }
 
-const LayerProperties = ({ layerName, style }: { layerName: string, style: object }) => (
+const LayerProperties_ = ({ layer }: { layer: Layer }) => (
   <View style={{
     // fontFamily: Theme.fontFamily,
     // color: Theme.textBright0,
-    ...style
   }}>
     <Module title='Layer Properties' hasToggle={false} noPaddingTop={true} padding={12} style={{ paddingBottom: 0 }}>
       <View style={{ display: 'flex', marginTop: 11, alignItems: 'center', marginLeft: 17, marginBottom: 12 }}>
@@ -117,7 +119,7 @@ const LayerProperties = ({ layerName, style }: { layerName: string, style: objec
           borderRadius: 2,
           marginRight: 18
         }}></View>
-        <Text style={{ fontSize: 14 }}>{layerName}</Text>
+        <Text style={{ fontSize: 14 }}>{layer.name}</Text>
       </View>
     </Module>
     <Module title='Blending options'>
@@ -125,7 +127,7 @@ const LayerProperties = ({ layerName, style }: { layerName: string, style: objec
       <Slider title='Opacity' defaultValue={0.5} valueDisplayfunc={(x: number) => Math.floor(x * 100) + '%'} />
       
       */}
-      <DropdownList title='BlendMode' selectedItem='Normal' />
+      <DropdownList title='BlendMode' selectedItem={layer.blendMode} />
     </Module>
 
     <Module padding={11}>
@@ -148,5 +150,9 @@ const LayerProperties = ({ layerName, style }: { layerName: string, style: objec
     <Module title='Smart Filters' isClosed={true} />
   </View>
 )
+
+const LayerProperties = connect((state: PhoblocksState) => ({
+  layer: state.document.layersRegistry.entries[state.document.activeLayer]
+}), {})(LayerProperties_)
 
 export default LayerProperties
