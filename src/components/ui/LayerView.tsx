@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import { Layer, LayerType, LayerActions } from '../../core/application/redux/layer'
-import { View, Text, StyleSheet, TouchableWithoutFeedback } from 'react-native'
+import { View, Text, StyleSheet, TouchableWithoutFeedback, Animated } from 'react-native'
 import Icon from '../Icon'
 import Theme from '../Theme'
 import { connect } from 'react-redux'
@@ -9,9 +9,11 @@ import { overlayLog } from '../DebugOverlay'
 import Svg, { Path } from 'react-native-svg'
 import { DocumentActions } from '../../core/application/redux/document'
 
+const previewBoxSize = 32
+
 const PreviewBox = ({ selected, image }: { selected: boolean, image?: object }) => (
   <View style={{
-    width: 32, height: 32, display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: selected ? '#508CE3' : '#C4C4C4',
+    width: previewBoxSize, height: previewBoxSize, display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: selected ? '#508CE3' : '#C4C4C4',
     borderRadius: 2,
   }}>
     <View style={{ width: selected ? 26 : 30, height: selected ? 26 : 30, backgroundColor: 'white', borderRadius: selected ? 0 : 2 }}>
@@ -24,18 +26,21 @@ type LayerViewProps = {
   level: number,
   selected: boolean,
   maskEditing: boolean,
+
+  onGroupButtonPress?: (a: boolean) => void,
+
   toggleLayerVisible: (id: number) => void,
   toggleGroupClosed: (id: number) => void
   setLayerActive: (id: number) => void,
   setMaskEditing: (enabled: boolean) => void,
 }
 
-
 const LayerView_ = ({
   layer,
   level,
   selected,
   maskEditing,
+  onGroupButtonPress,
   toggleLayerVisible,
   toggleGroupClosed,
   setLayerActive,
@@ -44,30 +49,43 @@ const LayerView_ = ({
   if (typeof (level) !== 'number') { level = 0 }
   const isGroup = layer.type === LayerType.GROUP
   const clippingMask = layer.clippingMask && !isGroup
+  const rotationValue = useRef(new Animated.Value(layer.closed ? 0 : 1)).current
+
+  const GroupToggleButton = Animated.createAnimatedComponent(class extends React.Component<{ rotation: number }>{
+    render() {
+      return (<Svg width={8} height={6} viewBox="0 0 8 6" fill="none" style={{
+        transform: [{ rotate: `${this.props.rotation}deg` }]
+      }}><Path d="M8 0H0l4 6 4-6z" fill={Theme.separatorColor} /></Svg>)
+    }
+  })
+
+  const addStyle = {
+    backgroundColor: selected ? Theme.selectedLayer : Theme.panelColor
+  }
 
   return (
     <TouchableWithoutFeedback onPress={() => {
       setLayerActive(layer.id)
       if (maskEditing) { setMaskEditing(false) }
     }}>
-      <View style={[selected ? { backgroundColor: '#353F4C' } : {}, styles.layerViewContainer]}>
+      <View style={[addStyle, styles.layerViewContainer]}>
         <View style={[styles.layerInnerContainer, { marginLeft: 16 * level }]}>
           <TouchableWithoutFeedback onPress={() => {
             if (layer.type === LayerType.GROUP) {
               toggleGroupClosed(layer.id)
+              if (onGroupButtonPress != null) {
+                onGroupButtonPress(layer.closed)
+              }
+              Animated.timing(rotationValue, { toValue: layer.closed ? 1 : 0, duration: 200 }).start()
             }
           }}>
-            <View style={[styles.leftIcon, {
+            <View style={[styles.leftIcon, isGroup ? { minHeight: previewBoxSize } : {}, {
               alignSelf: isGroup ? 'center' : 'flex-end',
               justifyContent: isGroup ? 'center' : 'space-between'
             }]}>
-              <View key='spacer' >
+              <View key='spacer' style={{ alignSelf: 'center' }} >
                 {isGroup ?
-                  (<Svg width={8} height={6} viewBox="0 0 8 6" fill="none" style={{
-                    transform: [{ rotate: `${layer.closed ? -90 : 0}deg` }]
-                  }}>
-                    <Path d="M8 0H0l4 6 4-6z" fill="#B9B9B9" />
-                  </Svg>)
+                  (<GroupToggleButton rotation={rotationValue.interpolate({ inputRange: [0, 1], outputRange: [-90, 0] })} />)
                   : null}
               </View>
               {clippingMask ? (
@@ -114,6 +132,7 @@ const LayerView = connect((state: PhoblocksState, ownProps: any) => ({
   setLayerActive: DocumentActions.setActiveLayer,
   setMaskEditing: DocumentActions.setMaskEditing
 })(LayerView_)
+
 
 
 const styles = StyleSheet.create({

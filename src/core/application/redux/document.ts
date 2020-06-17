@@ -70,7 +70,6 @@ const activeLayer = (state = 0, action: any) =>
   action.type === DA_SET_SELECTED_LAYER ? action.id : state
 
 const maskEditing = (state = false, action: any) => {
-  console.log("MASK")
   return action.type === DA_SET_MASK_EDITING ? action.enabled : state
 }
 

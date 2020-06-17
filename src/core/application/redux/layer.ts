@@ -19,6 +19,7 @@ export const LA_SET_MASK_ENABLED = 'LA_SET_MASK_ENABLED'
 export const LA_SET_MASK_TRANSFORM_LOCKED = 'LA_SET_MASK_TRANSFORM_LOCKED'
 export const LA_ENABLE_CLIPPING_MASK = 'LA_ENABLE_CLIPPING_MASK'
 export const LA_TOGGLE_GROUP_CLOSED = 'LA_TOGGLE_GROUP_CLOSED'
+export const LA_SET_OPACITY = 'LA_SET_OPACITY'
 
 export const LayerActionType = [
   LA_NONE,
@@ -30,6 +31,7 @@ export const LayerActionType = [
   LA_SET_MASK_TRANSFORM_LOCKED,
   LA_ENABLE_CLIPPING_MASK,
   LA_TOGGLE_GROUP_CLOSED,
+  LA_SET_OPACITY,
 ]
 
 export class Layer {
@@ -62,6 +64,9 @@ export const createLayer = (type: LayerType) => {
 
 export const layerReducer = (state: Layer, action: any) => {
   switch (action.type) {
+
+    case LA_SET_OPACITY:
+      return { ...state, opacity: action.opacity }
     case LA_ENABLE_CLIPPING_MASK:
       return { ...state, clippingMask: action.clippingMask }
     case LA_SET_NAME:
@@ -96,7 +101,9 @@ export const layerReducer = (state: Layer, action: any) => {
     default: return state
   }
 }
+
 export const LayerActions = {
+  setOpacity: (id: number, opacity: number) => ({ type: LA_SET_OPACITY, opacity }),
   setClippingMask: (id: number, enabled: boolean) => ({ type: LA_ENABLE_CLIPPING_MASK, id, clippingMask: enabled }),
   setName: (id: number, name: string) => ({ type: LA_SET_NAME, name, id }),
   setLocked: (id: number, locked: boolean) => ({ type: LA_SET_LOCKED, locked, id }),

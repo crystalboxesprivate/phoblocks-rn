@@ -2,7 +2,7 @@ import Theme from '../Theme'
 import { View, Text, StyleSheet, ScrollView, TouchableWithoutFeedback, Animated } from 'react-native'
 import Svg, { Path, Circle } from 'react-native-svg'
 import Slider from './Slider'
-import { Layer } from '../../core/application/redux/layer'
+import { Layer, LayerActions } from '../../core/application/redux/layer'
 import { connect } from 'react-redux'
 import { PhoblocksState } from '../../core/application/redux'
 import React, { useState, useRef } from 'react'
@@ -97,29 +97,24 @@ const Module = ({ title, children, closed, padding }:
             <Text style={styles.font16}>{title as string}</Text>
           </View>
         </TouchableWithoutFeedback>
-      )
-      }
-      {
-        (() => {
-          if (childHeight == 0) {
-            return (<View onLayout={(e) => setChildHeight(e.nativeEvent.layout.height)}>
-              {getChildrenContainer()}
-            </View>)
-          }
-          return (
-            <Animated.View style={{
-              overflow: 'hidden',
-              height: slidingDropdown.interpolate({ inputRange: [0, 1], outputRange: [0, childHeight] })
-            }}>
-              <Animated.View style={{
-                marginTop: slidingDropdown.interpolate({ inputRange: [0, 1], outputRange: [-childHeight, 0] })
-              }}>
-                {(slidingDropdown as unknown as number < 0.05) ? null : getChildrenContainer()}
-              </Animated.View>
-            </Animated.View>
-          )
-        })()
-      }
+      )}
+      {(() => {
+        if (childHeight == 0) {
+          return (<View onLayout={(e) => setChildHeight(e.nativeEvent.layout.height)}>
+            {getChildrenContainer()}
+          </View>)
+        }
+        return (<Animated.View style={{
+          overflow: 'hidden',
+          height: slidingDropdown.interpolate({ inputRange: [0, 1], outputRange: [0, childHeight] })
+        }}>
+          <Animated.View style={{
+            marginTop: slidingDropdown.interpolate({ inputRange: [0, 1], outputRange: [-childHeight, 0] })
+          }}>
+            {(slidingDropdown as unknown as number < 0.05) ? null : getChildrenContainer()}
+          </Animated.View>
+        </Animated.View>)
+      })()}
     </View >
   )
 }
@@ -168,7 +163,7 @@ class LockableScrollView extends React.Component<{ id: string }, {
   }
 }
 
-const LayerProperties_ = ({ layer }: { layer: Layer }) => (
+const LayerProperties_ = ({ layer, setOpacity }: { layer: Layer, setOpacity: (value: number) => void }) => (
   <View style={styles.layerProperties}>
     <View style={styles.layerPropertiesInnerBlock}>
       <LayerDragTitle />
@@ -186,6 +181,7 @@ const LayerProperties_ = ({ layer }: { layer: Layer }) => (
           max={1}
           step={0.01}
           defaultValue={layer.opacity}
+          setValueCallback={setOpacity}
           valueDisplayfunc={(x: number) => Math.floor(x * 100) + '%'}
         />
         <DropdownList title='Blend Mode' selectedItem={layer.blendMode} />
@@ -213,7 +209,7 @@ const LayerProperties_ = ({ layer }: { layer: Layer }) => (
 
 const LayerProperties = connect((state: PhoblocksState) => ({
   layer: state.document.layersRegistry.entries[state.document.activeLayer]
-}), {})(LayerProperties_)
+}), { setOpacity: LayerActions.setOpacity })(LayerProperties_)
 
 const styles = StyleSheet.create({
   font16: {

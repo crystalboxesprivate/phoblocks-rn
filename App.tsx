@@ -67,12 +67,15 @@ export default function App() {
   makeLayer(LayerType.LAYER, g)
   store.dispatch(DocumentActions.parentLayer(l2, g))
 
+  const g2 = makeLayer(LayerType.GROUP, g)
+  makeLayer(LayerType.LAYER, g2)
+
+
   const l3 = makeLayer(LayerType.LAYER)
   store.dispatch(LayerActions.setClippingMask(l3, true))
 
   store.dispatch(LayerActions.addLayerMask(l3))
   store.dispatch(LayerActions.toggleVisible(l3))
-  // store.dispatch(LayerActions.)
 
 
 

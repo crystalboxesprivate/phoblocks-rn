@@ -20,7 +20,9 @@ type SliderProps = {
   defaultValue: number,
   step: number,
   valueDisplayfunc: any,
-  parentScrollViewId?: string
+  parentScrollViewId?: string,
+
+  setValueCallback?: (value: number) => void
 }
 
 type SliderState = {
@@ -167,9 +169,11 @@ class Slider extends React.Component<SliderProps, SliderState> {
   }
 
   set value(value) {
+    if (this.props.setValueCallback) {
+      this.props.setValueCallback(value)
+    }
     this.setState({ value: value })
   }
-
 
   get circlePosition() {
     const boundMin = circleRadius + 1
