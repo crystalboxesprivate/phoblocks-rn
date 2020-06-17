@@ -199,7 +199,7 @@ class Slider extends React.Component<SliderProps, SliderState> {
       circlePos = 0
     }
     return (
-      <View style={{ alignItems: 'stretch', marginTop: 20 }}
+      <View style={{ alignItems: 'stretch' }}
         onStartShouldSetResponder={_ => true}
         onMoveShouldSetResponder={_ => true}
         onResponderGrant={e => this.handleMouseDown(e)}

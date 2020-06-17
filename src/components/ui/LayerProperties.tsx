@@ -1,22 +1,12 @@
 import Theme from '../Theme'
-import { View, Text, StyleSheet, ScrollView, TouchableWithoutFeedback } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, TouchableWithoutFeedback, Animated } from 'react-native'
 import Svg, { Path, Circle } from 'react-native-svg'
 import Slider from './Slider'
 import { Layer } from '../../core/application/redux/layer'
 import { connect } from 'react-redux'
 import { PhoblocksState } from '../../core/application/redux'
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { Events } from '../../core/events'
-
-
-const CollapseIcon = ({ isClosed }: { isClosed: boolean }) =>
-  (<Svg style={{
-    transform: [{ rotate: `${isClosed ? -90 : 0}deg` }],
-    marginRight: 8.5
-  }} width={11} height={7} viewBox="0 0 11 7" fill="none">
-    <Path d="M1.5 1l4 4 4-4" stroke="#B9B9B9" />
-  </Svg>)
-
 
 const ButtonBody = ({ children }: { children: JSX.Element | JSX.Element[] }) =>
   (<View style={styles.buttonBody}>
@@ -41,37 +31,101 @@ const DropdownList = ({ title, items, selectedItem }: {
   </View>)
 }
 
+const AnimatedCollapseIcon = Animated.createAnimatedComponent(class extends React.Component<{ rotation: number }, {}> {
+  render = () => {
+    return (
+      <Svg style={{
+        transform: [{ rotate: `${this.props.rotation}deg` }],
+        marginRight: 8.5
+      }} width={11} height={7} viewBox="0 0 11 7" fill="none">
+        <Path d="M1.5 1l4 4 4-4" stroke="#B9B9B9" />
+      </Svg>
+    )
+  }
+})
+
 const Module = ({ title, children, closed, padding }:
   { title?: string, children?: JSX.Element | JSX.Element[], closed?: boolean, padding?: number }) => {
   const [isClosed, setIsClosed] = useState(closed as boolean)
+
+  const rotationAnim = useRef(new Animated.Value(isClosed ? 0 : 1)).current
+  const slidingDropdown = useRef(new Animated.Value(isClosed ? 0 : 1)).current
+  // on layout record inner module height
+
+  // on layout and measure
+  const [childHeight, setChildHeight] = useState(0)
+
+  let heightStyle = {}
+  if (childHeight != 0) {
+    heightStyle = { height: childHeight }
+  }
+
+  const getChildrenContainer = () => (children == null ? [] : [
+    children,
+    <View key='spacer' style={{ paddingTop: padding || 20 }}></View>
+  ])
+
   return (
     <View style={[styles.module, {
       paddingTop: padding || 20,
-      paddingBottom: padding || 20
     }]}>
       {title == null ? null : (
         <TouchableWithoutFeedback onPress={() => {
+          Animated.parallel([
+            Animated.timing(
+              rotationAnim,
+              {
+                toValue: isClosed ? 1 : 0,
+                duration: 200,
+              }
+            ),
+            Animated.timing(
+              slidingDropdown,
+              {
+                toValue: isClosed ? 1 : 0,
+                duration: 200,
+              }
+            )
+          ]).start();
           setIsClosed(!isClosed)
         }}>
-          <View style={styles.moduleTitle}>
-            <CollapseIcon isClosed={isClosed} />
+          <View style={[styles.moduleTitle, { paddingBottom: padding || 20 }]}>
+            <AnimatedCollapseIcon rotation={rotationAnim.interpolate({
+              inputRange: [0, 1],
+              outputRange: [-90, 0]
+            }) as unknown as number} />
             <Text style={styles.font16}>{title as string}</Text>
           </View>
         </TouchableWithoutFeedback>
-      )}
-      {
-        isClosed ? null : children
+      )
       }
-    </View>
+      {
+        (() => {
+          if (childHeight == 0) {
+            return (<View onLayout={(e) => setChildHeight(e.nativeEvent.layout.height)}>
+              {getChildrenContainer()}
+            </View>)
+          }
+          return (
+            <Animated.View style={{
+              overflow: 'hidden',
+              height: slidingDropdown.interpolate({ inputRange: [0, 1], outputRange: [0, childHeight] })
+            }}>
+              <Animated.View style={{
+                marginTop: slidingDropdown.interpolate({ inputRange: [0, 1], outputRange: [-childHeight, 0] })
+              }}>
+                {(slidingDropdown as unknown as number < 0.05) ? null : getChildrenContainer()}
+              </Animated.View>
+            </Animated.View>
+          )
+        })()
+      }
+    </View >
   )
-}
-
-const s = {
 }
 
 const LayerDragTitle = () => {
   let posY = 0
-
   return (
     <View
       onStartShouldSetResponder={_ => true}
