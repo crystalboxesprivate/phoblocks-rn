@@ -1,26 +1,17 @@
 
 import React from 'react'
-import { overlayLog } from '../DebugOverlay'
 import { Animation, map } from './Animation'
 import { Events } from '../../core/events'
 import { View, Text } from 'react-native'
 import Svg, { Circle, Path } from 'react-native-svg'
 
-import Theme from '../Theme'
 
 const circleRadius = 9
 const circleMargin = 4
 const sliderDelay = 100
 
-
 const textStyle = {
   fontSize: 15,
-}
-
-const getBoundingRect = (rect: any) => {
-  console.log({ rect })
-  // return rect.getBoundingClientRect()
-  return { x: 0, y: 0, width: 0, height: 0 }
 }
 
 type SliderProps = {
