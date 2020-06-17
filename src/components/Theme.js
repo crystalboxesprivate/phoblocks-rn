@@ -19,6 +19,7 @@ export default {
   bgColor: '#252525',
   textBright: '#e5e5e5',
   textBright0: '#e3e3e3',
+  textDisabledLayer: '#6E6E6E',
   separatorColor: '#b9b9b9',
   separatorColor0: '#4A4A4A',
   sidebarWidth: 48,

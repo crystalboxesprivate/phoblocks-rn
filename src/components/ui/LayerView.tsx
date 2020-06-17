@@ -1,6 +1,6 @@
 import React from 'react'
 import { Layer, LayerType, LayerActions } from '../../core/application/redux/layer'
-import { View, Text, TouchableWithoutFeedback } from 'react-native'
+import { View, Text, StyleSheet, TouchableWithoutFeedback } from 'react-native'
 import Icon from '../Icon'
 import Theme from '../Theme'
 import { connect } from 'react-redux'
@@ -19,6 +19,18 @@ const PreviewBox = ({ selected, image }: { selected: boolean, image?: object }) 
   </View>
 )
 
+type LayerViewProps = {
+  layer: Layer,
+  level: number,
+  selected: boolean,
+  maskEditing: boolean,
+  toggleLayerVisible: (id: number) => void,
+  toggleGroupClosed: (id: number) => void
+  setLayerActive: (id: number) => void,
+  setMaskEditing: (enabled: boolean) => void,
+}
+
+
 const LayerView_ = ({
   layer,
   level,
@@ -28,85 +40,45 @@ const LayerView_ = ({
   toggleGroupClosed,
   setLayerActive,
   setMaskEditing
-}: {
-  layer: Layer,
-  level: number,
-  selected: boolean,
-  maskEditing: boolean,
-  toggleLayerVisible: (id: number) => void,
-  toggleGroupClosed: (id: number) => void
-  setLayerActive: (id: number) => void,
-  setMaskEditing: (enabled: boolean) => void,
-}) => {
-  if (typeof (level) !== 'number') {
-    level = 0
-  }
-  const clippingMask = (() => {
-    if ('clippingMask' in layer) {
-      return (layer as Layer).clippingMask
-    } else {
-      return false
-    }
-  })()
-
+}: LayerViewProps) => {
+  if (typeof (level) !== 'number') { level = 0 }
   const isGroup = layer.type === LayerType.GROUP
+  const clippingMask = layer.clippingMask && !isGroup
+
   return (
     <TouchableWithoutFeedback onPress={() => {
       setLayerActive(layer.id)
-      if (maskEditing) {
-        setMaskEditing(false)
-      }
+      if (maskEditing) { setMaskEditing(false) }
     }}>
-      <View style={{
-        flex: 1, flexDirection: 'row',
-        paddingTop: 6,
-        paddingBottom: 6,
-        alignItems: 'center',
-        ...(selected ? { backgroundColor: '#353F4C' } : {})
-      }}>
-        <View style={{
-          flexDirection: 'row',
-          alignItems: 'center', marginLeft: 16 * level
-        }}>
+      <View style={[selected ? { backgroundColor: '#353F4C' } : {}, styles.layerViewContainer]}>
+        <View style={[styles.layerInnerContainer, { marginLeft: 16 * level }]}>
           <TouchableWithoutFeedback onPress={() => {
             if (layer.type === LayerType.GROUP) {
               toggleGroupClosed(layer.id)
             }
           }}>
-            <View style={{
-              width: 25,
-              flexDirection: 'row',
+            <View style={[styles.leftIcon, {
               alignSelf: isGroup ? 'center' : 'flex-end',
               justifyContent: isGroup ? 'center' : 'space-between'
-            }}>
+            }]}>
               <View key='spacer' >
                 {isGroup ?
                   (<Svg width={8} height={6} viewBox="0 0 8 6" fill="none" style={{
-                    transform: [{
-                      rotate: `${layer.closed ? -90 : 0}deg`
-                    }]
+                    transform: [{ rotate: `${layer.closed ? -90 : 0}deg` }]
                   }}>
                     <Path d="M8 0H0l4 6 4-6z" fill="#B9B9B9" />
                   </Svg>)
                   : null}
               </View>
               {clippingMask ? (
-                <View key='icon-hold' style={{ marginRight: 6 }}>
+                <View key='icon-hold' style={styles.iconHold}>
                   <Icon name='clippingMask' fill={null} />
                 </View>) : null}
             </View>
           </TouchableWithoutFeedback>
-
           <PreviewBox selected={selected && !maskEditing} />
           {layer.mask ?
-            [<View key={'layerDot'} style={{
-              width: 3,
-              height: 3,
-              borderRadius: 1.5,
-              backgroundColor: '#C4C4C4',
-              marginRight: 3,
-              marginLeft: 3,
-            }}>
+            [<View key={'layerDot'} style={styles.layerDot}>
             </View>,
             <TouchableWithoutFeedback key={'maskPreview'} onPress={() => {
               setLayerActive(layer.id)
@@ -117,15 +89,11 @@ const LayerView_ = ({
               </View>
             </TouchableWithoutFeedback>] : null}
         </View>
-        <Text style={[Theme.getFont(14), {
-          color: layer.visible ? Theme.textBright0 : '#6E6E6E',
-          marginLeft: 7,
-          flexGrow: 4
-        }]}>{layer.name}</Text>
-        <TouchableWithoutFeedback onPress={() => {
-          toggleLayerVisible(layer.id)
-        }}>
-          <View style={{ marginRight: 6, paddingLeft: 30 }}>{
+        <Text style={[styles.layerTitle, { color: layer.visible ? Theme.textBright0 : Theme.textDisabledLayer }]}>
+          {layer.name}
+        </Text>
+        <TouchableWithoutFeedback onPress={() => toggleLayerVisible(layer.id)}>
+          <View style={styles.eye}>{
             layer.visible
               ? <Icon fill='#6B6B6B' name='eye' />
               : <Icon name='eyeCrossed' fill={null} />
@@ -146,5 +114,38 @@ const LayerView = connect((state: PhoblocksState, ownProps: any) => ({
   setLayerActive: DocumentActions.setActiveLayer,
   setMaskEditing: DocumentActions.setMaskEditing
 })(LayerView_)
+
+
+const styles = StyleSheet.create({
+  layerViewContainer: {
+    flex: 1,
+    paddingTop: 6,
+    paddingBottom: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  layerInnerContainer: {
+    flexDirection: 'row', alignItems: 'center',
+  },
+  leftIcon: {
+    width: 25,
+    flexDirection: 'row',
+  },
+  layerDot: {
+    width: 3,
+    height: 3,
+    borderRadius: 1.5,
+    backgroundColor: '#C4C4C4',
+    marginRight: 3,
+    marginLeft: 3,
+  },
+  layerTitle: {
+    ...Theme.getFont(14),
+    marginLeft: 7,
+    flexGrow: 4
+  },
+  iconHold: { marginRight: 6 },
+  eye: { marginRight: 6, paddingLeft: 30 }
+})
 
 export default LayerView
