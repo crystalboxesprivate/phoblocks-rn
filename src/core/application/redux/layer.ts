@@ -18,6 +18,7 @@ export const LA_ADD_LAYER_MASK = 'LA_ADD_LAYER_MASK'
 export const LA_SET_MASK_ENABLED = 'LA_SET_MASK_ENABLED'
 export const LA_SET_MASK_TRANSFORM_LOCKED = 'LA_SET_MASK_TRANSFORM_LOCKED'
 export const LA_ENABLE_CLIPPING_MASK = 'LA_ENABLE_CLIPPING_MASK'
+export const LA_TOGGLE_GROUP_CLOSED = 'LA_TOGGLE_GROUP_CLOSED'
 
 export const LayerActionType = [
   LA_NONE,
@@ -28,6 +29,7 @@ export const LayerActionType = [
   LA_SET_MASK_ENABLED,
   LA_SET_MASK_TRANSFORM_LOCKED,
   LA_ENABLE_CLIPPING_MASK,
+  LA_TOGGLE_GROUP_CLOSED,
 ]
 
 export class Layer {
@@ -66,6 +68,8 @@ export const layerReducer = (state: Layer, action: any) => {
       return { ...state, name: (action as { name: string }).name }
     case LA_TOGGLE_VISIBLE:
       return { ...state, visible: !state.visible }
+    case LA_TOGGLE_GROUP_CLOSED:
+      return { ...state, closed: !state.closed }
     case LA_SET_LOCKED:
       return { ...state, locked: (action as { locked: boolean }).locked }
     case LA_SET_MASK_TRANSFORM_LOCKED:
@@ -98,6 +102,7 @@ export const LayerActions = {
   setLocked: (id: number, locked: boolean) => ({ type: LA_SET_LOCKED, locked, id }),
   addLayerMask: (id: number) => ({ type: LA_ADD_LAYER_MASK, id }),
   toggleVisible: (id: number) => ({ type: LA_TOGGLE_VISIBLE, id }),
+  toggleGroupClosed: (id: number) => ({ type: LA_TOGGLE_GROUP_CLOSED, id }),
   setMaskEnabled: (id: number, enabled: boolean) => ({ type: LA_SET_MASK_ENABLED, enabled, id }),
   setMaskTransformLocked: (id: number, locked: boolean) => ({ type: LA_SET_MASK_TRANSFORM_LOCKED, locked, id }),
 }

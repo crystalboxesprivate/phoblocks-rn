@@ -2,7 +2,8 @@ import React, { useState } from 'react'
 import { TooltipLarge } from './Tooltips'
 import Theme from '../Theme'
 import Svg, { Circle, G } from 'react-native-svg'
-import { View, TouchableWithoutFeedback } from 'react-native'
+import { View, TouchableWithoutFeedback, Text } from 'react-native'
+import { Tooltip } from '../Tooltip'
 
 const ColorPicker = () => {
   return null
@@ -37,17 +38,20 @@ const ColorSelector = ({ backgroundColor, foregroundColor, isBackgroundActive }:
     <TouchableWithoutFeedback onPress={() => setClicked(!clicked)} >
       <View style={{
         position: 'relative',
-        marginTop: '4px'
+        marginTop: 4
       }}>
         <View>
-          <Svg width={30} height={48} viewBox="0 0 30 48" fill="none">
-            <G data-tip data-for="colorPicker">
-              {isBackgroundActive ? (<TopColorSwatch />) : (<BottomColorSwatch />)}
-            </G>
-            <G data-tip data-for="colorPicker">
-              {isBackgroundActive ? (<BottomColorSwatch />) : (<TopColorSwatch />)}
-            </G>
-          </Svg>
+          <Tooltip content={(<Text>Hello</Text>)} style={{ borderRadius: 6 }}>
+            <Svg width={30} height={48} viewBox="0 0 30 48" fill="none">
+              <G data-tip data-for="colorPicker">
+                {isBackgroundActive ? (<TopColorSwatch />) : (<BottomColorSwatch />)}
+              </G>
+              <G data-tip data-for="colorPicker">
+                {isBackgroundActive ? (<BottomColorSwatch />) : (<TopColorSwatch />)}
+              </G>
+            </Svg>
+          </Tooltip>
+
         </View>
       </View>
     </TouchableWithoutFeedback>

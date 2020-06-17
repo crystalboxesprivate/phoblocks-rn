@@ -189,10 +189,13 @@ const iconsList = {
     </Svg>
   ),
   addLayer: () => (
-    <svg width="18" height="17" viewBox="0 0 18 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="1" y="1" width="16" height="15" stroke="#B9B9B9" strokeWidth="2" />
-      <path d="M9.54785 7.92432H13.2588V9.57568H9.54785V13.834H7.72021V9.57568H4V7.92432H7.72021V4H9.54785V7.92432Z" fill="#B9B9B9" />
-    </svg>
+    <Svg width={18} height={17} viewBox="0 0 18 17" fill="none">
+      <Path stroke="#B9B9B9" d="M1 1h16v15H1z" />
+      <Path
+        d="M9.548 7.924h3.71v1.652h-3.71v4.258H7.72V9.576H4V7.924h3.72V4h1.828v3.924z"
+        fill="#B9B9B9"
+      />
+    </Svg>
   ),
   eyeCrossed: (scale) => (
     <Svg width={20 * (scale || 1)} height={16 * (scale || 1)} viewBox="0 0 20 16" fill="none">

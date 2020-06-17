@@ -1,10 +1,11 @@
 import { Dimensions } from 'react-native'
 
-const fontFamily = 'Roboto, sans-serif'
+import { getStatusBarHeight } from 'react-native-status-bar-height'
+// const fontFamily = 'sans-serif'
 
 function getFont(size) {
   return {
-    fontFamily,
+    // fontFamily,
     // fontStyle: 'normal',
     // fontWeight: 'normal',
     fontSize: size,
@@ -21,10 +22,12 @@ export default {
   separatorColor: '#b9b9b9',
   separatorColor0: '#4A4A4A',
   sidebarWidth: 48,
-  fontFamily,
+  layersPanelWidth: 256,
+  // fontFamily,
   headerHeight: 48,
   getFont,
   font: getFont(16),
+  getStatusBarHeight,
 
   getFullWidth: () => Dimensions.get('window').width,
   getFullHeight: () => Dimensions.get('window').height,

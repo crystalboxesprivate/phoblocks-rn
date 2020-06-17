@@ -1,6 +1,7 @@
 import React from 'react'
 import { Events } from '../core/events'
 import { Text, View, StyleSheet } from 'react-native'
+import Theme from './Theme';
 
 const formatTime = (x: Date) => x.getHours() + ":" + x.getMinutes() + ":" + x.getSeconds() + ':' + x.getMilliseconds()
 
@@ -8,7 +9,7 @@ function resize(arr: Array<any>, newSize: number, defaultValue: any) {
   return [...arr, ...Array(Math.max(newSize - arr.length, 0)).fill(defaultValue)];
 }
 
-const enabled = false
+const enabled = true
 
 type OverlayState = {
   update: boolean
@@ -76,12 +77,12 @@ const styles = StyleSheet.create({
     position: "absolute",
     backgroundColor: 'rgba(0,0,0,0.8)',
     maxWidth: 400,
-    top: 0,
+    top: Theme.getStatusBarHeight(),
     left: 0,
     zIndex: 99
   },
   text: {
-    fontSize: 8,
+    fontSize: 12,
     color: 'white'
   }
 })

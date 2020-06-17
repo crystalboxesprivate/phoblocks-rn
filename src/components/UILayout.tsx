@@ -1,16 +1,15 @@
 import React from 'react';
-import { Text, View, Platform, Dimensions } from 'react-native'
+import { View } from 'react-native'
 import Header from './ui/Header'
-import { getStatusBarHeight } from 'react-native-status-bar-height'
+import Theme from './Theme'
 import Toolbar from './ui/Toolbar'
 import LayersToolbar from './ui/LayersToolbar'
 import LayersPanel from './ui/LayersPanel'
 
 const UILayout = (
-  // { appState }: { appState: AppState }
 ) => <View style={{
   position: 'absolute',
-  top: getStatusBarHeight(),
+  top: Theme.getStatusBarHeight(),
   left: 0,
 }}>
     <Header />
