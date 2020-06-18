@@ -8,13 +8,14 @@ type LayersPanelProps = {
   listVisible: boolean,
   propertiesVisible: boolean
 }
-export const LayersPanel = ({ }: LayersPanelProps) => (
+export const LayersPanel = ({ listVisible, propertiesVisible }: LayersPanelProps) => (
   <View style={styles.container}>
-    <LayersListPanel
-      initialHeight={200}
-      style={{}}
-    />
-    <LayerProperties />
+    {listVisible ? (
+      <LayersListPanel
+        initialHeight={200}
+        style={{}}
+      />) : null}
+    {propertiesVisible ? <LayerProperties /> : null}
   </View>
 )
 

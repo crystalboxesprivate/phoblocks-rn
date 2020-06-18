@@ -9,14 +9,13 @@ import { LayersThumbnailsPanel } from './ui/LayersThumbnailsPanel'
 import { PhoblocksState } from '../core/application/redux';
 import { connect } from 'react-redux';
 import { LayerListDisplayMode } from '../core/application/redux/ui';
+import { Layer } from '../core/application/redux/layer';
 
 const containerRightOffset = 19
 
 type UILayoutProps = {
 
 }
-
-
 
 const UILayout = ({ }: UILayoutProps) => {
   return (<View style={{
@@ -28,15 +27,23 @@ const UILayout = ({ }: UILayoutProps) => {
     <Toolbar />
     <LayersToolbar />
 
-    {/*
-    <LayersPanel />
-    */}
-
+    <LayersPanelAnimated />
     <LayersThumbnailsPanelAnimated />
   </View>)
 
 }
 
+
+const LayersPanelAnimated = connect((state: PhoblocksState) => ({
+  listVisible: state.ui.layersButtons.layerListDisplayMode === LayerListDisplayMode.List,
+  propertiesVisible: state.ui.layersButtons.layerPropertiesButton
+}), {})(({ listVisible, propertiesVisible }) => {
+  return (
+    <LayersPanel
+      listVisible={listVisible}
+      propertiesVisible={propertiesVisible} />
+  )
+})
 
 const LayersThumbnailsPanelAnimated2 = Animated.createAnimatedComponent(class extends React.Component<{
   offset: number,
@@ -52,11 +59,11 @@ const LayersThumbnailsPanelAnimated2 = Animated.createAnimatedComponent(class ex
 const LayersThumbnailsPanelAnimated = connect((state: PhoblocksState) => ({
   layerThumbnailsOpened: state.ui.layersButtons.layerListDisplayMode === LayerListDisplayMode.Thumbnails
 }), {})(({ layerThumbnailsOpened }) => {
-  const animatedValue = useRef(new Animated.Value(layerThumbnailsOpened ? 1 : 0)).current
+  const animatedValue = useRef(new Animated.Value(layerThumbnailsOpened ? 0 : 1)).current
 
   useEffect(() => {
     Animated.timing(animatedValue, {
-      toValue: layerThumbnailsOpened ? 0 : 1,
+      toValue: layerThumbnailsOpened ? 1 : 0,
       duration: 100
     }).start()
   })
