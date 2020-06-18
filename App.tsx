@@ -8,7 +8,7 @@ import Theme from './src/components/Theme';
 import UILayout from './src/components/UILayout'
 
 import { Provider } from 'react-redux'
-import { Combined } from './src/core/application/redux/index'
+import { Combined, PhoblocksState } from './src/core/application/redux/index'
 import { createStore } from 'redux';
 import { DocumentActions } from './src/core/application/redux/document';
 import { ViewerAction } from './src/core/application/redux/viewer';
@@ -23,6 +23,7 @@ class Phoblocks extends React.Component<{}, {}> {
 
     if (Platform.OS === 'web') {
       window.addEventListener('resize', () => {
+        Events.invoke('resize')
         this.forceUpdate()
       })
     }
@@ -78,6 +79,8 @@ export default function App() {
 
   store.dispatch(LayerActions.addLayerMask(l3))
   store.dispatch(LayerActions.toggleVisible(l3))
+
+  // store.subscribe(() => console.log({ state: store.getState() }))
 
 
 

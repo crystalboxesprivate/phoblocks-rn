@@ -1,7 +1,7 @@
 import Theme from '../Theme'
 import { View, Text, StyleSheet, ScrollView, TouchableWithoutFeedback, Animated } from 'react-native'
 import Svg, { Path, Circle } from 'react-native-svg'
-import Slider from './Slider2'
+import Slider, { SliderProps } from './Slider'
 import { Layer, LayerActions } from '../../core/application/redux/layer'
 import { connect } from 'react-redux'
 import { PhoblocksState } from '../../core/application/redux'
@@ -163,35 +163,42 @@ class LockableScrollView extends React.Component<{ id: string }, {
   }
 }
 
-const LayerProperties_ = ({ layer, setOpacity }: { layer: Layer, setOpacity: (id: number, value: number) => void }) => {
-  const OpacitySlider = connect((state: PhoblocksState) => ({
-    value: state.document.layersRegistry.entries[layer.id].opacity,
-  }), { setValue: (val: number) => LayerActions.setOpacity(layer.id, val) })(Slider)
+
+const OpacitySlider = connect((state: PhoblocksState, ownProps: SliderProps) => {
+  return ({
+    value: state.document.layersRegistry.entries[+ownProps.id].opacity,
+  })
+}, (dispatch: any, ownProps: SliderProps) => {
+  return {
+    setValue: (val: number) => {
+      dispatch(LayerActions.setOpacity(+ownProps.id, val))
+    }
+  }
+})(Slider)
+
+const LayerProperties_ = ({ id,
+  name,
+  blendMode }: { id: number, name: string, blendMode: string }) => {
   return (
     <View style={styles.layerProperties}>
       <View style={styles.layerPropertiesInnerBlock}>
         <LayerDragTitle />
         <View style={styles.layerPreviewContainer}>
           <View style={styles.layerPropertiesPreview}></View>
-          <Text style={styles.font14}>{layer.name}</Text>
+          <Text style={styles.font14}>{name}</Text>
         </View>
       </View>
       <LockableScrollView id='LayerProperties0'>
         <Module title='Blending Options' closed={false}>
           <OpacitySlider
-            // parentScrollViewId='LayerProperties0'
-            // step={0.01}
-            // defaultValue={layer.opacity}
-            // setValueCallback={(value) => setOpacity(layer.id, value)}
-            id='layer_panel_opacity_slider'
-
+            parentScrollViewId='LayerProperties0'
+            id={`${id}`}
             title='Opacity'
             valueDisplayfunc={(x: number) => Math.floor(x * 100) + '%'}
             min={0}
             max={1}
-
           />
-          <DropdownList title='Blend Mode' selectedItem={layer.blendMode} />
+          <DropdownList title='Blend Mode' selectedItem={blendMode} />
         </Module>
 
         <Module padding={11}>
@@ -215,9 +222,14 @@ const LayerProperties_ = ({ layer, setOpacity }: { layer: Layer, setOpacity: (id
   )
 }
 
-const LayerProperties = connect((state: PhoblocksState) => ({
-  layer: state.document.layersRegistry.entries[state.document.activeLayer]
-}), { setOpacity: LayerActions.setOpacity })(LayerProperties_)
+const LayerProperties = connect((state: PhoblocksState) => {
+  const layer = state.document.layersRegistry.entries[state.document.activeLayer]
+  return ({
+    id: layer.id,
+    name: layer.name,
+    blendMode: layer.blendMode
+  })
+}, {})(LayerProperties_)
 
 const styles = StyleSheet.create({
   font16: {

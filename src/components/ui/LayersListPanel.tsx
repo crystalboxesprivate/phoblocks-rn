@@ -36,7 +36,7 @@ type LayersListProps = {
 const LayerViewHolder = Animated.createAnimatedComponent(class extends React.Component<LayersListProps> {
   render() {
     const opacity = this.props.opacity == null ? 1.0 : this.props.opacity
-    return (opacity < 0.01 ? null : <Animated.View style={{
+    return (opacity < 0.001 ? null : <Animated.View style={{
       marginTop: this.props.marginTop || 0, opacity: opacity
     }}><LayerView
         onGroupButtonPress={this.props.onGroupButtonPress}
@@ -168,7 +168,13 @@ class _LayersListPanel extends React.Component<LayersListPanelProps, { height: n
           {this.state.height > 20 ? (<Text style={styles.layersListTitle}>Layers</Text>) : null}
           {this.state.height > 45 ?
             this.state.listHeight == 0
-              ? <View onLayout={e => this.setState({ listHeight: e.nativeEvent.layout.height })}><LayerView level={0} layer={new Layer} /></View>
+              ? (
+                <ScrollView style={{ height: this.state.height }}>
+                  <View onLayout={e => this.setState({ listHeight: e.nativeEvent.layout.height })}>
+                    <LayerView level={0} layer={new Layer()} />
+                  </View>
+                </ScrollView>
+              )
               : <ScrollView style={{ height: this.state.height }}>
                 {this.generatedCache.map(x => <LayerViewHolder
                   onGroupButtonPress={x.onGroupButtonPress}
