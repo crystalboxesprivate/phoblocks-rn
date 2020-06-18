@@ -61,13 +61,13 @@ type LayersListPanelProps = {
 }
 
 class _LayersListPanel extends React.Component<LayersListPanelProps, { height: number, listHeight: number }> {
+  startHeight = 0
+  cacheGenerated = false
+
   constructor(props: LayersListPanelProps) {
     super(props)
     this.state = { height: this.props.initialHeight, listHeight: 0 }
   }
-
-  startHeight = 0
-  cacheGenerated = false
 
   componentDidMount() {
     Events.addListener('LayerDragTitleStart', () => {
@@ -80,6 +80,7 @@ class _LayersListPanel extends React.Component<LayersListPanelProps, { height: n
       this.setState({ height: newHeight })
     })
   }
+
   animatedValues = new Map<number, { layer: Layer, anim: Animated.Value | any }>()
   generatedCache: LayerViewEntry[] = []
 

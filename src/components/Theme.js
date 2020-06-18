@@ -1,6 +1,7 @@
 import { Dimensions } from 'react-native'
 
 import { getStatusBarHeight } from 'react-native-status-bar-height'
+import { Config } from '../config'
 
 function getFont(size) {
   return {
@@ -23,7 +24,12 @@ export default {
   headerHeight: 48,
   getFont,
   font: getFont(16),
-  getStatusBarHeight,
+  getStatusBarHeight() {
+    if (Config.statusBarVisible) {
+      return getStatusBarHeight()
+    }
+    return 0
+  },
   selectedLayer: '#353F4C',
 
   getFullWidth: () => Dimensions.get('window').width,

@@ -1,6 +1,7 @@
 import { document, ColorMode, DocumentDimensions, LayersRegistry } from './document'
 import { viewer } from './viewer'
 import { combineReducers, } from 'redux'
+import { UIState, ui } from './ui'
 
 type ViewerState = {
   position: [number, number],
@@ -21,9 +22,11 @@ type DocumentState = {
 export type PhoblocksState = {
   document: DocumentState,
   viewer: ViewerState,
+  ui: UIState,
 }
 
 export const Combined = combineReducers({
   document,
   viewer,
+  ui
 })

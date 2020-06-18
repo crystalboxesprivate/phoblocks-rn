@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View, Platform } from 'react-native';
+import { View, Platform, StatusBar } from 'react-native';
 import { DebugOverlay, overlayLog } from './src/components/DebugOverlay';
 import TouchEventLoader from './src/components/TouchEventLoader'
 import { Events, initializeEvents } from './src/core/events';
@@ -8,11 +8,12 @@ import Theme from './src/components/Theme';
 import UILayout from './src/components/UILayout'
 
 import { Provider } from 'react-redux'
-import { Combined, PhoblocksState } from './src/core/application/redux/index'
+import { Combined } from './src/core/application/redux/index'
 import { createStore } from 'redux';
 import { DocumentActions } from './src/core/application/redux/document';
 import { ViewerAction } from './src/core/application/redux/viewer';
 import { LayerType, LayerActions, Layer } from './src/core/application/redux/layer';
+import { Config } from './src/config';
 
 
 class Phoblocks extends React.Component<{}, {}> {
@@ -26,6 +27,10 @@ class Phoblocks extends React.Component<{}, {}> {
         Events.invoke('resize')
         this.forceUpdate()
       })
+    }
+
+    if (!Config.statusBarVisible) {
+      StatusBar.setHidden(true, 'slide')
     }
   }
 
@@ -65,6 +70,15 @@ export default function App() {
   store.dispatch(LayerActions.setOpacity(l, 0.5))
   const l2 = makeLayer(LayerType.LAYER)
 
+  // makeLayer(LayerType.LAYER)
+  // makeLayer(LayerType.LAYER)
+  // makeLayer(LayerType.LAYER)
+  // makeLayer(LayerType.LAYER)
+  // makeLayer(LayerType.LAYER)
+  // makeLayer(LayerType.LAYER)
+  // makeLayer(LayerType.LAYER)
+  // makeLayer(LayerType.LAYER)
+
   const g = makeLayer(LayerType.GROUP)
   makeLayer(LayerType.LAYER, g)
   store.dispatch(DocumentActions.parentLayer(l2, g))
@@ -79,10 +93,6 @@ export default function App() {
 
   store.dispatch(LayerActions.addLayerMask(l3))
   store.dispatch(LayerActions.toggleVisible(l3))
-
-  // store.subscribe(() => console.log({ state: store.getState() }))
-
-
 
   return (
     <Provider store={store}>

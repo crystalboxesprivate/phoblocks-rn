@@ -2,6 +2,7 @@ import React from 'react'
 import { Events } from '../core/events'
 import { Text, View, StyleSheet } from 'react-native'
 import Theme from './Theme';
+import { Config } from '../config';
 
 const formatTime = (x: Date) => x.getHours() + ":" + x.getMinutes() + ":" + x.getSeconds() + ':' + x.getMilliseconds()
 
@@ -9,7 +10,7 @@ function resize(arr: Array<any>, newSize: number, defaultValue: any) {
   return [...arr, ...Array(Math.max(newSize - arr.length, 0)).fill(defaultValue)];
 }
 
-const enabled = true
+const enabled = Config.debugOverlay
 
 type OverlayState = {
   update: boolean

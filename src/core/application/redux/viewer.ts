@@ -1,10 +1,5 @@
 import { combineReducers } from 'redux'
 
-class ViewerState {
-  position: [number, number] = [0, 0]
-  scale: number = 1
-  rotation: number = 0
-}
 
 export const VS_SET_POSITION = 'VS_SET_POSITION'
 export const VS_SET_SCALE = 'VS_SET_SCALE'
