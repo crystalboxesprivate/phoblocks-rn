@@ -12,7 +12,7 @@ import { Combined } from './src/core/application/redux/index'
 import { createStore } from 'redux';
 import { DocumentActions } from './src/core/application/redux/document';
 import { ViewerAction } from './src/core/application/redux/viewer';
-import { LayerType, LayerActions } from './src/core/application/redux/layer';
+import { LayerType, LayerActions, Layer } from './src/core/application/redux/layer';
 
 
 class Phoblocks extends React.Component<{}, {}> {
@@ -61,6 +61,7 @@ export default function App() {
 
   const l = makeLayer(LayerType.LAYER)
   store.dispatch(LayerActions.setName(l, 'my layer'))
+  store.dispatch(LayerActions.setOpacity(l, 0.5))
   const l2 = makeLayer(LayerType.LAYER)
 
   const g = makeLayer(LayerType.GROUP)
@@ -70,6 +71,7 @@ export default function App() {
   const g2 = makeLayer(LayerType.GROUP, g)
   makeLayer(LayerType.LAYER, g2)
 
+  store.dispatch(LayerActions.toggleGroupClosed(g2))
 
   const l3 = makeLayer(LayerType.LAYER)
   store.dispatch(LayerActions.setClippingMask(l3, true))

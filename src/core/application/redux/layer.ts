@@ -103,7 +103,7 @@ export const layerReducer = (state: Layer, action: any) => {
 }
 
 export const LayerActions = {
-  setOpacity: (id: number, opacity: number) => ({ type: LA_SET_OPACITY, opacity }),
+  setOpacity: (id: number, opacity: number) => ({ id, type: LA_SET_OPACITY, opacity }),
   setClippingMask: (id: number, enabled: boolean) => ({ type: LA_ENABLE_CLIPPING_MASK, id, clippingMask: enabled }),
   setName: (id: number, name: string) => ({ type: LA_SET_NAME, name, id }),
   setLocked: (id: number, locked: boolean) => ({ type: LA_SET_LOCKED, locked, id }),

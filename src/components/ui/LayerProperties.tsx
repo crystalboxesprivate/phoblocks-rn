@@ -1,7 +1,7 @@
 import Theme from '../Theme'
 import { View, Text, StyleSheet, ScrollView, TouchableWithoutFeedback, Animated } from 'react-native'
 import Svg, { Path, Circle } from 'react-native-svg'
-import Slider from './Slider'
+import Slider from './Slider2'
 import { Layer, LayerActions } from '../../core/application/redux/layer'
 import { connect } from 'react-redux'
 import { PhoblocksState } from '../../core/application/redux'
@@ -163,49 +163,57 @@ class LockableScrollView extends React.Component<{ id: string }, {
   }
 }
 
-const LayerProperties_ = ({ layer, setOpacity }: { layer: Layer, setOpacity: (value: number) => void }) => (
-  <View style={styles.layerProperties}>
-    <View style={styles.layerPropertiesInnerBlock}>
-      <LayerDragTitle />
-      <View style={styles.layerPreviewContainer}>
-        <View style={styles.layerPropertiesPreview}></View>
-        <Text style={styles.font14}>{layer.name}</Text>
+const LayerProperties_ = ({ layer, setOpacity }: { layer: Layer, setOpacity: (id: number, value: number) => void }) => {
+  const OpacitySlider = connect((state: PhoblocksState) => ({
+    value: state.document.layersRegistry.entries[layer.id].opacity,
+  }), { setValue: (val: number) => LayerActions.setOpacity(layer.id, val) })(Slider)
+  return (
+    <View style={styles.layerProperties}>
+      <View style={styles.layerPropertiesInnerBlock}>
+        <LayerDragTitle />
+        <View style={styles.layerPreviewContainer}>
+          <View style={styles.layerPropertiesPreview}></View>
+          <Text style={styles.font14}>{layer.name}</Text>
+        </View>
       </View>
-    </View>
-    <LockableScrollView id='LayerProperties0'>
-      <Module title='Blending Options' closed={false}>
-        <Slider
-          parentScrollViewId='LayerProperties0'
-          title='Opacity'
-          min={0}
-          max={1}
-          step={0.01}
-          defaultValue={layer.opacity}
-          setValueCallback={setOpacity}
-          valueDisplayfunc={(x: number) => Math.floor(x * 100) + '%'}
-        />
-        <DropdownList title='Blend Mode' selectedItem={layer.blendMode} />
-      </Module>
+      <LockableScrollView id='LayerProperties0'>
+        <Module title='Blending Options' closed={false}>
+          <OpacitySlider
+            // parentScrollViewId='LayerProperties0'
+            // step={0.01}
+            // defaultValue={layer.opacity}
+            // setValueCallback={(value) => setOpacity(layer.id, value)}
+            id='layer_panel_opacity_slider'
 
-      <Module padding={11}>
-        <ButtonBody>
-          <Svg style={{ marginRight: 1 }} width={18} height={18} viewBox="0 0 18 18" fill="none">
-            <Path
-              fillRule="evenodd"
-              clipRule="evenodd"
-              d="M3.343 14.657A8 8 0 1014.604 3.29L14.5 3.5 14 4 3.343 14.657z"
-              fill="#C4C4C4"
-            />
-            <Circle cx={9} cy={9} r={8} stroke="#C4C4C4" />
-          </Svg>
-          <Text style={styles.font16}>Add clipped adjustment</Text>
-        </ButtonBody>
-      </Module>
-      <Module title='Effects' closed={true} />
-      <Module title='Smart Filters' closed={true} />
-    </LockableScrollView>
-  </View>
-)
+            title='Opacity'
+            valueDisplayfunc={(x: number) => Math.floor(x * 100) + '%'}
+            min={0}
+            max={1}
+
+          />
+          <DropdownList title='Blend Mode' selectedItem={layer.blendMode} />
+        </Module>
+
+        <Module padding={11}>
+          <ButtonBody>
+            <Svg style={{ marginRight: 1 }} width={18} height={18} viewBox="0 0 18 18" fill="none">
+              <Path
+                fillRule="evenodd"
+                clipRule="evenodd"
+                d="M3.343 14.657A8 8 0 1014.604 3.29L14.5 3.5 14 4 3.343 14.657z"
+                fill="#C4C4C4"
+              />
+              <Circle cx={9} cy={9} r={8} stroke="#C4C4C4" />
+            </Svg>
+            <Text style={styles.font16}>Add clipped adjustment</Text>
+          </ButtonBody>
+        </Module>
+        <Module title='Effects' closed={true} />
+        <Module title='Smart Filters' closed={true} />
+      </LockableScrollView>
+    </View>
+  )
+}
 
 const LayerProperties = connect((state: PhoblocksState) => ({
   layer: state.document.layersRegistry.entries[state.document.activeLayer]
