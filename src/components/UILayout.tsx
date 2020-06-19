@@ -11,7 +11,6 @@ import { connect } from 'react-redux';
 import { LayerListDisplayMode } from '../core/application/redux/ui';
 import { Layer } from '../core/application/redux/layer';
 
-const containerRightOffset = 19
 
 type UILayoutProps = {
 
@@ -44,6 +43,7 @@ const LayersPanelAnimated = connect((state: PhoblocksState) => ({
       propertiesVisible={propertiesVisible} />
   )
 })
+const containerRightOffset = 19
 
 const LayersThumbnailsPanelAnimated2 = Animated.createAnimatedComponent(class extends React.Component<{
   offset: number,
@@ -57,23 +57,37 @@ const LayersThumbnailsPanelAnimated2 = Animated.createAnimatedComponent(class ex
   }
 })
 const LayersThumbnailsPanelAnimated = connect((state: PhoblocksState) => ({
-  layerThumbnailsOpened: state.ui.layersButtons.layerListDisplayMode === LayerListDisplayMode.Thumbnails
-}), {})(({ layerThumbnailsOpened }) => {
-  const animatedValue = useRef(new Animated.Value(layerThumbnailsOpened ? 0 : 1)).current
+  layerThumbnailsOpened: state.ui.layersButtons.layerListDisplayMode === LayerListDisplayMode.Thumbnails,
+  layerPropertiesButton: state.ui.layersButtons.layerPropertiesButton
+}), {})(({ layerThumbnailsOpened, layerPropertiesButton }) => {
+  const animatedValue = useRef(new Animated.Value(layerThumbnailsOpened ? 1 : 0)).current
+  const offsetValue = useRef(new Animated.Value(layerPropertiesButton ? 1 : 0)).current
 
   useEffect(() => {
     Animated.timing(animatedValue, {
       toValue: layerThumbnailsOpened ? 1 : 0,
       duration: 100
     }).start()
+
+    Animated.timing(offsetValue, {
+      toValue: layerPropertiesButton ? 1 : 0,
+      duration: 100
+    }).start()
   })
+
+  const getContainerOffset = () => containerRightOffset + (layerPropertiesButton ? Theme.layersPanelWidth : 0)
+
 
   console.log({ layerThumbnailsOpened })
 
   return (
     <LayersThumbnailsPanelAnimated2
       scale={animatedValue.interpolate({ inputRange: [0, 1], outputRange: [0.8, 1] })}
-      offset={animatedValue.interpolate({ inputRange: [0, 1], outputRange: [0, containerRightOffset] })}
+      offset={
+        Animated.add(
+          animatedValue.interpolate({ inputRange: [0, 1], outputRange: [0, containerRightOffset] }),
+          offsetValue.interpolate({ inputRange: [0, 1], outputRange: [0, Theme.layersPanelWidth] })
+        )}
       opacity={animatedValue} />
   )
 })
