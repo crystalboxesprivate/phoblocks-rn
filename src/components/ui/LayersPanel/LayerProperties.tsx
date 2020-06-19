@@ -5,8 +5,9 @@ import Slider, { SliderProps } from '../Slider'
 import { Layer, LayerActions } from '../../../core/application/redux/layer'
 import { connect } from 'react-redux'
 import { PhoblocksState } from '../../../core/application/redux'
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { Events } from '../../../core/events'
+import { LayerListDisplayMode } from '../../../core/application/redux/ui'
 
 const ButtonBody = ({ children }: { children: JSX.Element | JSX.Element[] }) =>
   (<View style={styles.buttonBody}>
@@ -119,8 +120,14 @@ const Module = ({ title, children, closed, padding }:
   )
 }
 
-const LayerDragTitle = () => {
+const LayerDragTitle = connect((state: PhoblocksState) => ({
+  listVisible: state.ui.layersButtons.layerListDisplayMode === LayerListDisplayMode.List
+}), {})(({ listVisible }) => {
   let posY = 0
+  const opacityAnim = useRef(new Animated.Value(listVisible ? 1 : 0)).current
+  useEffect(() => {
+    Animated.timing(opacityAnim, { toValue: listVisible ? 1 : 0, duration: 100 }).start()
+  })
   return (
     <View
       onStartShouldSetResponder={_ => true}
@@ -131,19 +138,21 @@ const LayerDragTitle = () => {
       onResponderMove={e => Events.invoke('LayerDragTitleMove', e.nativeEvent.pageY - posY)}
     >
       <View style={styles.layerDragTitle}>
-        <Svg width={30} height={4} viewBox="0 0 30 4" fill="none">
-          <Path
-            fillRule="evenodd"
-            clipRule="evenodd"
-            d="M0 2a2 2 0 012-2h26a2 2 0 110 4H2a2 2 0 01-2-2z"
-            fill="#6E6E6E"
-          />
-        </Svg>
+        <Animated.View style={{ opacity: opacityAnim }}>
+          <Svg width={30} height={4} viewBox="0 0 30 4" fill="none">
+            <Path
+              fillRule="evenodd"
+              clipRule="evenodd"
+              d="M0 2a2 2 0 012-2h26a2 2 0 110 4H2a2 2 0 01-2-2z"
+              fill="#6E6E6E"
+            />
+          </Svg>
+        </Animated.View>
       </View>
       <Text style={[{ marginLeft: 15 }, styles.font16]}>Layer Properties</Text>
     </View>
   )
-}
+})
 
 class LockableScrollView extends React.Component<{ id: string }, {
   enabled: boolean
@@ -152,9 +161,17 @@ class LockableScrollView extends React.Component<{ id: string }, {
     super(props)
     this.state = { enabled: true }
   }
+
+  scrollEnableCallback = () => this.setState({ enabled: true })
+  scrollDisableCallback = () => this.setState({ enabled: false })
+
   componentDidMount() {
-    Events.addListener(this.props.id + '_enable', () => this.setState({ enabled: true }))
-    Events.addListener(this.props.id + '_disable', () => this.setState({ enabled: false }))
+    Events.addListener(this.props.id + '_enable', this.scrollEnableCallback)
+    Events.addListener(this.props.id + '_disable', this.scrollDisableCallback)
+  }
+  componentWillUnmount() {
+    Events.removeListener(this.props.id + '_enable', this.scrollEnableCallback)
+    Events.removeListener(this.props.id + '_disable', this.scrollDisableCallback)
   }
   render() {
     return (<ScrollView scrollEnabled={this.state.enabled}>
