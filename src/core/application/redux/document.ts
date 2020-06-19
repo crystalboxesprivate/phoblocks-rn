@@ -137,7 +137,6 @@ const layersRegistry = (state = new LayersRegistry, action: any) => {
             const parentObject = newEntries[parent]
             layer.parent = parent
             parentObject.layers.push(nextId)
-            console.log(parent)
           } else {
             newChildren.push(nextId)
           }

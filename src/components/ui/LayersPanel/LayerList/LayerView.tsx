@@ -1,13 +1,13 @@
 import React, { useRef } from 'react'
-import { Layer, LayerType, LayerActions } from '../../core/application/redux/layer'
+import { Layer, LayerType, LayerActions } from '../../../../core/application/redux/layer'
 import { View, Text, StyleSheet, TouchableWithoutFeedback, Animated } from 'react-native'
-import Icon from '../Icon'
-import Theme from '../Theme'
+import Icon from '../../../Icon'
+import Theme from '../../../Theme'
 import { connect } from 'react-redux'
-import { PhoblocksState } from '../../core/application/redux'
-import { overlayLog } from '../DebugOverlay'
+import { PhoblocksState } from '../../../../core/application/redux'
+import { overlayLog } from '../../../DebugOverlay'
 import Svg, { Path } from 'react-native-svg'
-import { DocumentActions } from '../../core/application/redux/document'
+import { DocumentActions } from '../../../../core/application/redux/document'
 
 const previewBoxSize = 32
 

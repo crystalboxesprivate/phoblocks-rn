@@ -1,12 +1,12 @@
-import Theme from '../Theme'
+import Theme from '../../Theme'
 import { View, Text, StyleSheet, ScrollView, TouchableWithoutFeedback, Animated } from 'react-native'
 import Svg, { Path, Circle } from 'react-native-svg'
-import Slider, { SliderProps } from './Slider'
-import { Layer, LayerActions } from '../../core/application/redux/layer'
+import Slider, { SliderProps } from '../Slider'
+import { Layer, LayerActions } from '../../../core/application/redux/layer'
 import { connect } from 'react-redux'
-import { PhoblocksState } from '../../core/application/redux'
+import { PhoblocksState } from '../../../core/application/redux'
 import React, { useState, useRef } from 'react'
-import { Events } from '../../core/events'
+import { Events } from '../../../core/events'
 
 const ButtonBody = ({ children }: { children: JSX.Element | JSX.Element[] }) =>
   (<View style={styles.buttonBody}>
