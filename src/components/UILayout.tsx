@@ -1,12 +1,10 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Animated } from 'react-native'
+import { View } from 'react-native'
 import Header from './ui/Header'
 import Theme from './Theme'
 import Toolbar from './ui/Toolbar'
 import LayersToolbar from './ui/LayersPanel/LayersToolbar'
-import { LayersPanel } from './ui/LayersPanel/LayersPanel'
-import { LayersThumbnailsPanelAnimated } from './ui/LayersPanel/LayersThumbnailsPanel'
-
+import { LayersPanel, LayersThumbnailsPanel } from './ui/LayersPanel'
 
 
 const UILayout = () => {
@@ -20,7 +18,7 @@ const UILayout = () => {
     <LayersToolbar />
 
     <LayersPanel />
-    <LayersThumbnailsPanelAnimated />
+    <LayersThumbnailsPanel />
   </View>)
 }
 

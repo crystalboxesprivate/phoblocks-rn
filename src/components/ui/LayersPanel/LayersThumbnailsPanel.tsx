@@ -110,6 +110,50 @@ export const LayersThumbnailsPanel = connect((state: PhoblocksState) => {
   </View>
 ))
 
+
+const LayersThumbnailsPanelAnimated2 = Animated.createAnimatedComponent(class extends React.Component<{
+  offset: number,
+  opacity: number, scale: number
+}> {
+  render() {
+    return this.props.opacity < 0.01 ? null : (
+      <LayersThumbnailsPanel offset={this.props.offset} opacity={this.props.opacity} scale={this.props.scale} />
+    )
+  }
+})
+
+export const LayersThumbnailsPanelAnimated = connect((state: PhoblocksState) => ({
+  layerThumbnailsOpened: state.ui.layersButtons.layerListDisplayMode === LayerListDisplayMode.Thumbnails,
+  layerPropertiesButton: state.ui.layersButtons.layerPropertiesButton
+}), {})(({ layerThumbnailsOpened, layerPropertiesButton }) => {
+  const animatedValue = useRef(new Animated.Value(layerThumbnailsOpened ? 1 : 0)).current
+  const offsetValue = useRef(new Animated.Value(layerPropertiesButton ? 1 : 0)).current
+
+  useEffect(() => {
+    Animated.timing(animatedValue, {
+      toValue: layerThumbnailsOpened ? 1 : 0,
+      duration: 100
+    }).start()
+
+    Animated.timing(offsetValue, {
+      toValue: layerPropertiesButton ? 1 : 0,
+      duration: 100
+    }).start()
+  })
+
+  return (
+    <LayersThumbnailsPanelAnimated2
+      scale={animatedValue.interpolate({ inputRange: [0, 1], outputRange: [0.8, 1] })}
+      offset={
+        Animated.add(
+          animatedValue.interpolate({ inputRange: [0, 1], outputRange: [0, containerRightOffset] }),
+          offsetValue.interpolate({ inputRange: [0, 1], outputRange: [0, Theme.layersPanelWidth] })
+        )}
+      opacity={animatedValue} />
+  )
+})
+
+const containerRightOffset = 19
 const containerPadding = 8
 const containerMargin = 10
 const containerWidth = 80
@@ -143,47 +187,3 @@ const styles = StyleSheet.create(
     groupInnerDimensions: { width: 58, height: 50 },
   }
 )
-
-
-const LayersThumbnailsPanelAnimated2 = Animated.createAnimatedComponent(class extends React.Component<{
-  offset: number,
-  opacity: number, scale: number
-}> {
-  render() {
-    return this.props.opacity < 0.01 ? null : (
-      <LayersThumbnailsPanel offset={this.props.offset} opacity={this.props.opacity} scale={this.props.scale} />
-    )
-  }
-})
-const containerRightOffset = 19
-
-export const LayersThumbnailsPanelAnimated = connect((state: PhoblocksState) => ({
-  layerThumbnailsOpened: state.ui.layersButtons.layerListDisplayMode === LayerListDisplayMode.Thumbnails,
-  layerPropertiesButton: state.ui.layersButtons.layerPropertiesButton
-}), {})(({ layerThumbnailsOpened, layerPropertiesButton }) => {
-  const animatedValue = useRef(new Animated.Value(layerThumbnailsOpened ? 1 : 0)).current
-  const offsetValue = useRef(new Animated.Value(layerPropertiesButton ? 1 : 0)).current
-
-  useEffect(() => {
-    Animated.timing(animatedValue, {
-      toValue: layerThumbnailsOpened ? 1 : 0,
-      duration: 100
-    }).start()
-
-    Animated.timing(offsetValue, {
-      toValue: layerPropertiesButton ? 1 : 0,
-      duration: 100
-    }).start()
-  })
-
-  return (
-    <LayersThumbnailsPanelAnimated2
-      scale={animatedValue.interpolate({ inputRange: [0, 1], outputRange: [0.8, 1] })}
-      offset={
-        Animated.add(
-          animatedValue.interpolate({ inputRange: [0, 1], outputRange: [0, containerRightOffset] }),
-          offsetValue.interpolate({ inputRange: [0, 1], outputRange: [0, Theme.layersPanelWidth] })
-        )}
-      opacity={animatedValue} />
-  )
-})

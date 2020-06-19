@@ -2,12 +2,13 @@ import React, { useState, useEffect, useRef } from 'react'
 import { View, Animated, Text } from 'react-native'
 import LayerProperties from './LayerProperties'
 import { PhoblocksState } from '../../../core/application/redux'
-import { LayersListAnimated } from './LayerList/LayersList'
+import { LayersListAnimated } from './LayerList'
 import { LayersPanelStyles } from './LayersPanelStyles'
 import LayerView from './LayerList/LayerView'
 import { Layer } from '../../../core/application/redux/layer'
 import { connect } from 'react-redux'
 import { LayerListDisplayMode } from '../../../core/application/redux/ui'
+import { LayersThumbnailsPanelAnimated } from './LayersThumbnailsPanel'
 
 type LayersPanelProps = {
   listVisible: boolean,
@@ -112,3 +113,5 @@ export const LayersPanel = connect((state: PhoblocksState) => ({
       propertiesVisible={propertiesVisible} />
   )
 })
+
+export const LayersThumbnailsPanel = LayersThumbnailsPanelAnimated
