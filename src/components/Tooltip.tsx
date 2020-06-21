@@ -1,5 +1,6 @@
 import React, { useState, } from 'react'
 import { View, TouchableHighlight, LayoutChangeEvent, LayoutRectangle, StyleProp, ViewStyle, StyleSheet } from 'react-native'
+import { useLayout } from './Hooks'
 
 type TooltipProps = {
   content: any,
@@ -15,17 +16,6 @@ export enum TooltipPlacement {
 }
 
 
-const useLayout = (): [LayoutRectangle | null, any] => {
-  const [layout, setLayout]: [LayoutRectangle | null, any] = useState(null)
-
-  const onLayout = (e: LayoutChangeEvent) => {
-    if (layout == null) {
-      setLayout(e.nativeEvent.layout)
-    }
-  }
-
-  return [layout, onLayout]
-}
 
 export const Tooltip = ({ backgroundColor, borderWidth, borderColor,
   style,

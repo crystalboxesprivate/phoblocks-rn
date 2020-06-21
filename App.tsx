@@ -14,6 +14,7 @@ import { DocumentActions } from './src/core/application/redux/document';
 import { ViewerAction } from './src/core/application/redux/viewer';
 import { LayerType, LayerActions, Layer } from './src/core/application/redux/layer';
 import { Config } from './src/config';
+import { FloatingPanelManager } from './src/components/ui/FloatingPanel';
 
 
 class Phoblocks extends React.Component<{}, {}> {
@@ -43,6 +44,7 @@ class Phoblocks extends React.Component<{}, {}> {
           Platform.OS === 'web' ? { overflow: 'hidden' } : {}
         )
       }}>
+        <FloatingPanelManager />
         <DebugOverlay />
         <RenderView />
         <TouchEventLoader style={{ zIndex: 2 }} />

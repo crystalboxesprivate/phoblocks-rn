@@ -10,6 +10,7 @@ import { Events } from '../../../core/events'
 import { LayerListDisplayMode } from '../../../core/application/redux/ui'
 import { DropdownList, ButtonBody } from './DropdownList'
 import { Styles } from '../Styles'
+import { BlendingModeSelect } from './BlendingModeSelect'
 
 
 const AnimatedCollapseIcon = Animated.createAnimatedComponent(class extends React.Component<{ rotation: number }, {}> {
@@ -25,8 +26,14 @@ const AnimatedCollapseIcon = Animated.createAnimatedComponent(class extends Reac
   }
 })
 
-const Module = ({ title, children, closed, padding }:
-  { title?: string, children?: JSX.Element | JSX.Element[], closed?: boolean, padding?: number }) => {
+type ModuleProps = {
+  title?: string,
+  children?: JSX.Element | JSX.Element[],
+  closed?: boolean,
+  padding?: number
+}
+
+const Module = ({ title, children, closed, padding }: ModuleProps) => {
   const [isClosed, setIsClosed] = useState(closed as boolean)
 
   const rotationAnim = useRef(new Animated.Value(isClosed ? 0 : 1)).current
@@ -86,7 +93,7 @@ const Module = ({ title, children, closed, padding }:
           </View>)
         }
         return (<Animated.View style={{
-          overflow: 'hidden',
+          overflow: isClosed ? 'hidden' : 'auto',
           height: slidingDropdown.interpolate({ inputRange: [0, 1], outputRange: [0, childHeight] })
         }}>
           <Animated.View style={{
@@ -173,9 +180,7 @@ const OpacitySlider = connect((state: PhoblocksState, ownProps: SliderProps) => 
   }
 })(Slider)
 
-const LayerProperties_ = ({ id,
-  name,
-  blendMode }: { id: number, name: string, blendMode: string }) => {
+const LayerProperties_ = ({ id, name, blendMode }: { id: number, name: string, blendMode: string }) => {
   return (
     <View style={styles.layerProperties}>
       <View style={styles.layerPropertiesInnerBlock}>
@@ -195,11 +200,12 @@ const LayerProperties_ = ({ id,
             min={0}
             max={1}
           />
-          <DropdownList title='Blend Mode' selectedItem={blendMode} />
+
+          <BlendingModeSelect id={id} />
         </Module>
 
         <Module padding={11}>
-          <ButtonBody>
+          <ButtonBody style={Styles.buttonBodyMargin}>
             <Svg style={{ marginRight: 1 }} width={18} height={18} viewBox="0 0 18 18" fill="none">
               <Path
                 fillRule="evenodd"
@@ -229,7 +235,11 @@ const LayerProperties = connect((state: PhoblocksState) => {
 }, {})(LayerProperties_)
 
 const styles = StyleSheet.create({
-  moduleTitle: { flexDirection: 'row', alignItems: 'center', marginLeft: 16 },
+  moduleTitle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 16
+  },
   module: {
     borderTopWidth: 1,
     borderColor: Theme.bgColor,
