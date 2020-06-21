@@ -150,21 +150,40 @@ const layersRegistry = (state = new LayersRegistry, action: any) => {
 
         // remove from the old parent
         const layer = newEntries[layerId]
-        if (layer.parent === parentId) {
-          // WARN: illegal operation
-          return state
-        }
+        // if (layer.parent === parentId) {
+        //   // WARN: illegal operation
+        //   return state
+        // }
         if (layer.parent === -1) {
           newChildren.splice(newChildren.indexOf(layerId), 1)
         } else {
           newEntries[layer.parent].layers.splice(newEntries[layer.parent].layers.indexOf(layerId), 1)
         }
 
+        const arrayMove = (arr: any[], old_index: number, new_index: number) => {
+          if (new_index >= arr.length) {
+            var k = new_index - arr.length + 1;
+            while (k--) {
+              arr.push(undefined);
+            }
+          }
+          arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
+          return arr; // for testing
+        };
+
         // add to the new parent
         if (parentId === -1) {
           newChildren.push(layerId)
+          // change its list position
+          if (action.listPosition) {
+            arrayMove(newChildren, newChildren.length - 1, action.listPosition)
+          }
         } else {
           newEntries[parentId].layers.push(layerId)
+          // change its list position
+          if (action.listPosition) {
+            arrayMove(newEntries[parentId].layers, newChildren.length - 1, action.listPosition)
+          }
         }
 
         // set the new parent id for the layer
@@ -186,7 +205,7 @@ export const DocumentActions = {
   setName: (name: string) => ({ type: DA_SET_NAME, name }),
   addLayer: (layerType: LayerType, parent = -1, listOrder = -1) =>
     ({ type: DA_ADD_LAYER, layerType, parent, listOrder }),
-  parentLayer: (layerId: number, parentId: number) => ({ type: DA_PARENT_LAYER, layerId, parentId }),
+  parentLayer: (layerId: number, parentId: number, listPosition?: number) => ({ type: DA_PARENT_LAYER, layerId, parentId, listPosition }),
   setWidthHeight: (width: number, height: number) =>
     ({ type: DA_SET_IMAGE_RESOLUTION, width: width, height: height })
 }

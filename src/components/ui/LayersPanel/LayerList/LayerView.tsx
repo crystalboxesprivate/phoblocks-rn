@@ -5,7 +5,6 @@ import Icon from '../../../Icon'
 import Theme from '../../../Theme'
 import { connect } from 'react-redux'
 import { PhoblocksState } from '../../../../core/application/redux'
-import { overlayLog } from '../../../DebugOverlay'
 import Svg, { Path } from 'react-native-svg'
 import { DocumentActions } from '../../../../core/application/redux/document'
 
@@ -64,61 +63,67 @@ const LayerView_ = ({
   }
 
   return (
-    <TouchableWithoutFeedback onPress={() => {
-      setLayerActive(layer.id)
-      if (maskEditing) { setMaskEditing(false) }
-    }}>
-      <View style={[addStyle, styles.layerViewContainer]}>
-        <View style={[styles.layerInnerContainer, { marginLeft: 16 * level }]}>
-          <TouchableWithoutFeedback onPress={() => {
-            if (layer.type === LayerType.GROUP) {
-              toggleGroupClosed(layer.id)
-              if (onGroupButtonPress != null) {
-                onGroupButtonPress(layer.closed)
-              }
-              Animated.timing(rotationValue, { toValue: layer.closed ? 1 : 0, duration: 200 }).start()
+
+    <View style={[addStyle, styles.layerViewContainer]}>
+      <View style={[styles.layerInnerContainer, { marginLeft: 16 * level }]}>
+        <TouchableWithoutFeedback onPress={() => {
+          if (layer.type === LayerType.GROUP) {
+            toggleGroupClosed(layer.id)
+            if (onGroupButtonPress != null) {
+              onGroupButtonPress(layer.closed)
             }
-          }}>
-            <View style={[styles.leftIcon, isGroup ? { minHeight: previewBoxSize } : {}, {
-              alignSelf: isGroup ? 'center' : 'flex-end',
-              justifyContent: isGroup ? 'center' : 'space-between'
-            }]}>
-              <View key='spacer' style={{ alignSelf: 'center' }} >
-                {isGroup ?
-                  (<GroupToggleButton rotation={rotationValue.interpolate({ inputRange: [0, 1], outputRange: [-90, 0] })} />)
-                  : null}
-              </View>
-              {clippingMask ? (
-                <View key='icon-hold' style={styles.iconHold}>
-                  <Icon name='clippingMask' fill={null} />
-                </View>) : null}
+            Animated.timing(rotationValue, { toValue: layer.closed ? 1 : 0, duration: 200 }).start()
+          }
+        }}>
+          <View style={[styles.leftIcon, isGroup ? { minHeight: previewBoxSize } : {}, {
+            alignSelf: isGroup ? 'center' : 'flex-end',
+            justifyContent: isGroup ? 'center' : 'space-between'
+          }]}>
+
+            <View key='spacer' style={{ alignSelf: 'center' }} >
+              {isGroup ?
+                (<GroupToggleButton rotation={rotationValue.interpolate({ inputRange: [0, 1], outputRange: [-90, 0] })} />)
+                : null}
             </View>
-          </TouchableWithoutFeedback>
-          <PreviewBox selected={selected && !maskEditing} />
-          {layer.mask ?
-            [<View key={'layerDot'} style={styles.layerDot}>
-            </View>,
-            <TouchableWithoutFeedback key={'maskPreview'} onPress={() => {
-              setLayerActive(layer.id)
-              setMaskEditing(true)
-            }}>
-              <View>
-                <PreviewBox selected={selected && maskEditing} />
-              </View>
-            </TouchableWithoutFeedback>] : null}
-        </View>
-        <Text style={[styles.layerTitle, { color: layer.visible ? Theme.textBright0 : Theme.textDisabledLayer }]}>
-          {layer.name}
-        </Text>
-        <TouchableWithoutFeedback onPress={() => toggleLayerVisible(layer.id)}>
-          <View style={styles.eye}>{
-            layer.visible
-              ? <Icon fill='#6B6B6B' name='eye' />
-              : <Icon name='eyeCrossed' fill={null} />
-          }</View>
+            {clippingMask ? (
+              <View key='icon-hold' style={styles.iconHold}>
+                <Icon name='clippingMask' fill={null} />
+              </View>) : null}
+          </View>
         </TouchableWithoutFeedback>
+
+        <TouchableWithoutFeedback onPress={() => {
+          setLayerActive(layer.id)
+          if (maskEditing) { setMaskEditing(false) }
+        }}>
+          <View>
+            <PreviewBox selected={selected && !maskEditing} />
+          </View>
+        </TouchableWithoutFeedback>
+        {layer.mask ?
+          [<View key={'layerDot'} style={styles.layerDot}>
+          </View>,
+          <TouchableWithoutFeedback key={'maskPreview'} onPress={() => {
+            setLayerActive(layer.id)
+            setMaskEditing(true)
+          }}>
+            <View>
+              <PreviewBox selected={selected && maskEditing} />
+            </View>
+          </TouchableWithoutFeedback>] : null}
       </View>
-    </TouchableWithoutFeedback>)
+      <Text style={[styles.layerTitle, { color: layer.visible ? Theme.textBright0 : Theme.textDisabledLayer }]}>
+        {layer.name}
+      </Text>
+      <TouchableWithoutFeedback onPress={() => toggleLayerVisible(layer.id)}>
+        <View style={styles.eye}>{
+          layer.visible
+            ? <Icon fill='#6B6B6B' name='eye' />
+            : <Icon name='eyeCrossed' fill={null} />
+        }</View>
+      </TouchableWithoutFeedback>
+    </View>
+  )
 }
 
 const LayerView = connect((state: PhoblocksState, ownProps: any) => ({
@@ -132,8 +137,6 @@ const LayerView = connect((state: PhoblocksState, ownProps: any) => ({
   setLayerActive: DocumentActions.setActiveLayer,
   setMaskEditing: DocumentActions.setMaskEditing
 })(LayerView_)
-
-
 
 const styles = StyleSheet.create({
   layerViewContainer: {

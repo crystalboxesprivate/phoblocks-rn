@@ -1,9 +1,11 @@
 import { connect } from "react-redux"
 import { PhoblocksState } from "../../../../core/application/redux"
 import React from 'react'
-import { Layer, LayerType } from "../../../../core/application/redux/layer"
+import { Layer, LayerType, LayerActions } from "../../../../core/application/redux/layer"
 import { Animated, ScrollView } from 'react-native'
 import LayerView from "./LayerView"
+import { DraggableList } from "./DraggableList"
+import { DocumentActions } from "../../../../core/application/redux/document"
 
 
 type FlatLayerListEntry = {
@@ -54,21 +56,36 @@ type LayerViewEntry = {
   anim: any,
 }
 
+type ParentLayerFuncType = (layerId: number, parentId: number, listPosition?: number | undefined) => {
+  type: string;
+  layerId: number;
+  parentId: number;
+  listPosition: number | undefined;
+}
+
 type LayersScrollableListProps = {
   entries: Layer[],
   children: number[],
   height: number,
   listHeight: number
+  parentLayer: ParentLayerFuncType
+}
+
+type LayersScrollableListState = {
+  updateId: number
 }
 
 export const LayersScrollableList = connect((state: PhoblocksState) => ({
   entries: state.document.layersRegistry.entries,
   children: state.document.layersRegistry.docChildren,
-}), {})(
-  class extends React.Component<LayersScrollableListProps>{
+}), { parentLayer: DocumentActions.parentLayer })(
+  class extends React.Component<LayersScrollableListProps, LayersScrollableListState>{
     cacheGenerated = false
     animatedValues = new Map<number, { layer: Layer, anim: Animated.Value | any }>()
     generatedCache: LayerViewEntry[] = []
+    state = {
+      updateId: 0
+    }
 
     generateCache() {
       const flatlist = getFlatLayerList(this.props.entries, this.props.children, 0)
@@ -139,27 +156,86 @@ export const LayersScrollableList = connect((state: PhoblocksState) => ({
       }
       this.cacheGenerated = true
     }
+
+    elems: JSX.Element[] = []
     render() {
       if (!this.cacheGenerated) {
         this.generateCache()
       }
+
+      const setChangeListOrder = (oldIndex: number, newIndex: number) => {
+        // get the item of 
+        const target = this.generatedCache[oldIndex]
+        const oldOb = this.generatedCache[newIndex]
+
+        // check if old object is child of the target
+        // this.props.entries
+
+
+        const isChildOf = (layerId: number, otherLayerId: number) => {
+          let parentId = this.props.entries[layerId].parent
+          while (parentId != -1) {
+            if (parentId == otherLayerId) {
+              return true
+            }
+            parentId = this.props.entries[parentId].parent
+          }
+          return false
+        }
+
+
+        // invalidate cache
+        this.cacheGenerated = false
+
+        this.setState({ updateId: this.state.updateId + 1 })
+
+        if (!target || !oldOb) {
+          console.log({ target, oldOb })
+          return
+        }
+        // discard
+        if (isChildOf(oldOb.id, target.id)) {
+          console.log({ msg: 'discardig', target, oldOb })
+          return
+        }
+
+        // if the layer with clipping mask goes to the 
+        // find out which parent is the oldOb
+        // get old object parent
+        // this.props.entries[oldOb.id].parent
+        const parent = this.props.entries[oldOb.id].parent
+        let listPosition = -1
+        if (parent == -1) {
+          listPosition = this.props.children.indexOf(oldOb.id)
+        } else {
+          listPosition = this.props.entries[parent].layers.indexOf(oldOb.id)
+        }
+        this.props.parentLayer(target.id, parent, listPosition)
+
+
+
+
+        console.log({ oldIndex, newIndex })
+      }
+
       return (<ScrollView style={{ height: this.props.height }}>
-        {this.generatedCache.map(x => <LayerViewHolder
-          onGroupButtonPress={x.onGroupButtonPress}
-          key={x.key}
-          layer={this.props.entries[x.id]}
-          level={x.level}
-          marginTop={x.anim ? x.anim.interpolate({
-            inputRange: [0, 1],
-            outputRange: [0, -this.props.listHeight]
-          }) : 0}
-          opacity={x.anim ? x.anim.interpolate({
-            inputRange: [0, 1],
-            outputRange: [1, 0]
-          }) : 1}
-        />)}
+        <DraggableList isConstantBlockSize={true} setChangeListOrder={setChangeListOrder} key={`list:${this.state.updateId}`} dragStartDelay={500}>
+          {(this.generatedCache.map(x => <LayerViewHolder
+            onGroupButtonPress={x.onGroupButtonPress}
+            key={x.key}
+            layer={this.props.entries[x.id]}
+            level={x.level}
+            marginTop={x.anim ? x.anim.interpolate({
+              inputRange: [0, 1],
+              outputRange: [0, -this.props.listHeight]
+            }) : 0}
+            opacity={x.anim ? x.anim.interpolate({
+              inputRange: [0, 1],
+              outputRange: [1, 0]
+            }) : 1}
+          />))}
+        </DraggableList>
       </ScrollView>)
     }
-
   }
 )

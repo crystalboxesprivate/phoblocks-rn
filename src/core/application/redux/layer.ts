@@ -6,7 +6,38 @@ export enum LayerType {
 }
 
 export enum BlendMode {
-  NORMAL = 'Normal',
+  NORMAL = 'Normal', // Normal
+  DISSOLVE = 'Dissolve', // Dissolve
+  // ---
+  DARKEN = 'Darken', // Darken
+  MULTIPLY = 'Multiply', // Multiply
+  COLORBURN = 'Color Burn', // Color Burn
+  LINEARBURN = 'Linear Burn', // Linear Burn
+  DARKENCOLOR = 'Darken Color', // Darken Color
+  // ----
+  LIGHTEN = 'Lighten', // Lighten
+  SCREEN = 'Screen', // Screen
+  COLORDODGE = 'Color Dodge', // Color Dodge
+  LINEARDODGE_ADD = 'Linear Dodge (Add)', // Linear Dodge (Add)
+  LIGHTENCOLOR = 'Lighten Color', // Lighten Color
+  // ----
+  OVERLAY = 'Overlay', // Overlay
+  SOFTLIGHT = 'Soft Light', // Soft Light
+  HARDLIGHT = 'Hard Light', // Hard Light
+  VIVIDLIGHT = 'Vivid Light', // Vivid Light
+  LINEARLIGHT = 'Linear Light', // Linear Light
+  PINLIGHT = 'Pin Light', // Pin Light
+  HARDMIX = 'Hard Mix', // Hard Mix
+  // ----
+  DIFFERENCE = 'Difference', // Difference
+  EXCLUSION = 'Exclusion', // Exclusion
+  SUBTRACT = 'Subtract', // Subtract
+  DIVIDE = 'Divide', // Divide
+  // ----
+  HUE = 'Hue', // Hue
+  SATURATION = 'Saturation', // Saturation
+  COLOR = 'Color', // Color
+  LUMINOSITY = 'Luminosity', // Luminosity
   PASSTHROUGH = 'Passthrough'
 }
 
@@ -20,6 +51,7 @@ export const LA_SET_MASK_TRANSFORM_LOCKED = 'LA_SET_MASK_TRANSFORM_LOCKED'
 export const LA_ENABLE_CLIPPING_MASK = 'LA_ENABLE_CLIPPING_MASK'
 export const LA_TOGGLE_GROUP_CLOSED = 'LA_TOGGLE_GROUP_CLOSED'
 export const LA_SET_OPACITY = 'LA_SET_OPACITY'
+export const LA_SET_BLEND_MODE = 'LA_SET_BLEND_MODE'
 
 export const LayerActionType = [
   LA_NONE,
@@ -32,6 +64,7 @@ export const LayerActionType = [
   LA_ENABLE_CLIPPING_MASK,
   LA_TOGGLE_GROUP_CLOSED,
   LA_SET_OPACITY,
+  LA_SET_BLEND_MODE,
 ]
 
 export class Layer {
@@ -61,10 +94,10 @@ export const createLayer = (type: LayerType) => {
   return l
 }
 
-
 export const layerReducer = (state: Layer, action: any) => {
   switch (action.type) {
-
+    case LA_SET_BLEND_MODE:
+      return { ...state, blendMode: action.blendMode }
     case LA_SET_OPACITY:
       return { ...state, opacity: action.opacity }
     case LA_ENABLE_CLIPPING_MASK:
@@ -112,4 +145,5 @@ export const LayerActions = {
   toggleGroupClosed: (id: number) => ({ type: LA_TOGGLE_GROUP_CLOSED, id }),
   setMaskEnabled: (id: number, enabled: boolean) => ({ type: LA_SET_MASK_ENABLED, enabled, id }),
   setMaskTransformLocked: (id: number, locked: boolean) => ({ type: LA_SET_MASK_TRANSFORM_LOCKED, locked, id }),
+  setBlendMode: (id: number, blendMode: BlendMode) => ({ type: LA_SET_BLEND_MODE, blendMode, id })
 }

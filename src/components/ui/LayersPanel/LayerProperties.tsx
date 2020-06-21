@@ -8,29 +8,9 @@ import { PhoblocksState } from '../../../core/application/redux'
 import React, { useState, useRef, useEffect } from 'react'
 import { Events } from '../../../core/events'
 import { LayerListDisplayMode } from '../../../core/application/redux/ui'
+import { DropdownList, ButtonBody } from './DropdownList'
+import { Styles } from '../Styles'
 
-const ButtonBody = ({ children }: { children: JSX.Element | JSX.Element[] }) =>
-  (<View style={styles.buttonBody}>
-    {children}
-  </View >)
-
-const DropdownList = ({ title, items, selectedItem }: {
-  title: string,
-  items?: string[],
-  selectedItem: string
-}) => {
-  return (<View style={{ marginTop: 14 }}>
-    {title != null ? <Text style={styles.dropdownTitle}>{title}</Text> : null}
-    <ButtonBody>
-      <Text style={styles.font16}>{selectedItem}</Text>
-      <View>
-        <Svg width={8} height={5} viewBox="0 0 8 5" fill="none">
-          <Path d="M1 1l3 3 3-3" stroke="#B9B9B9" />
-        </Svg>
-      </View>
-    </ButtonBody>
-  </View>)
-}
 
 const AnimatedCollapseIcon = Animated.createAnimatedComponent(class extends React.Component<{ rotation: number }, {}> {
   render = () => {
@@ -95,7 +75,7 @@ const Module = ({ title, children, closed, padding }:
               inputRange: [0, 1],
               outputRange: [-90, 0]
             }) as unknown as number} />
-            <Text style={styles.font16}>{title as string}</Text>
+            <Text style={Styles.font16}>{title as string}</Text>
           </View>
         </TouchableWithoutFeedback>
       )}
@@ -136,6 +116,7 @@ const LayerDragTitle = connect((state: PhoblocksState) => ({
         posY = e.nativeEvent.pageY
       }}
       onResponderMove={e => Events.invoke('LayerDragTitleMove', e.nativeEvent.pageY - posY)}
+      onResponderRelease={e => Events.invoke('LayerDragTitleEnd', e.nativeEvent.pageY - posY)}
     >
       <View style={styles.layerDragTitle}>
         <Animated.View style={{ opacity: opacityAnim }}>
@@ -149,7 +130,7 @@ const LayerDragTitle = connect((state: PhoblocksState) => ({
           </Svg>
         </Animated.View>
       </View>
-      <Text style={[{ marginLeft: 15 }, styles.font16]}>Layer Properties</Text>
+      <Text style={[{ marginLeft: 15 }, Styles.font16]}>Layer Properties</Text>
     </View>
   )
 })
@@ -180,7 +161,6 @@ class LockableScrollView extends React.Component<{ id: string }, {
   }
 }
 
-
 const OpacitySlider = connect((state: PhoblocksState, ownProps: SliderProps) => {
   return ({
     value: state.document.layersRegistry.entries[+ownProps.id].opacity,
@@ -202,7 +182,7 @@ const LayerProperties_ = ({ id,
         <LayerDragTitle />
         <View style={styles.layerPreviewContainer}>
           <View style={styles.layerPropertiesPreview}></View>
-          <Text style={styles.font14}>{name}</Text>
+          <Text style={Styles.font14}>{name}</Text>
         </View>
       </View>
       <LockableScrollView id='LayerProperties0'>
@@ -229,7 +209,7 @@ const LayerProperties_ = ({ id,
               />
               <Circle cx={9} cy={9} r={8} stroke="#C4C4C4" />
             </Svg>
-            <Text style={styles.font16}>Add clipped adjustment</Text>
+            <Text style={Styles.font16}>Add clipped adjustment</Text>
           </ButtonBody>
         </Module>
         <Module title='Effects' closed={true} />
@@ -249,33 +229,11 @@ const LayerProperties = connect((state: PhoblocksState) => {
 }, {})(LayerProperties_)
 
 const styles = StyleSheet.create({
-  font16: {
-    color: Theme.textBright0,
-    fontSize: 16
-  },
-  font14: {
-    color: Theme.textBright0,
-    fontSize: 14
-  },
-  buttonBody: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginLeft: 16,
-    marginRight: 16,
-    backgroundColor: Theme.buttonColor,
-    borderWidth: 1,
-    borderColor: Theme.separatorColor0,
-    borderRadius: 4,
-    paddingTop: 11, paddingRight: 17, paddingBottom: 11, paddingLeft: 15,
-
-  },
   moduleTitle: { flexDirection: 'row', alignItems: 'center', marginLeft: 16 },
   module: {
     borderTopWidth: 1,
     borderColor: Theme.bgColor,
   },
-  dropdownTitle: { marginLeft: 15, marginBottom: 9, color: '#b9b9b9' },
   layerDragTitle: { justifyContent: 'center', flexDirection: 'row', marginBottom: 12 },
   layerProperties: {
     backgroundColor: Theme.panelColor,

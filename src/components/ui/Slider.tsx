@@ -20,7 +20,6 @@ export type SliderProps = {
 
 }
 
-
 const previousSliderValues = new Map<string, { width: number, previous: number }>()
 
 function fit(value: number, low1: number, high1: number, low2: number, high2: number) {
