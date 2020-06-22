@@ -1,15 +1,17 @@
 import React, { useState } from 'react'
-import { TooltipLarge } from './Tooltips'
 import Theme from '../Theme'
 import Svg, { Circle, G } from 'react-native-svg'
 import { View, TouchableWithoutFeedback, Text } from 'react-native'
 import { Tooltip } from '../Tooltip'
+import { ColorPicker } from './ColorPicker'
 
-const ColorPicker = () => {
-  return null
+type ColorSelectorProps = {
+  backgroundColor: string,
+  foregroundColor: string,
+  isBackgroundActive: boolean
 }
 
-const ColorSelector = ({ backgroundColor, foregroundColor, isBackgroundActive }: { backgroundColor: string, foregroundColor: string, isBackgroundActive: boolean }) => {
+const ColorSelector = ({ backgroundColor, foregroundColor, isBackgroundActive }: ColorSelectorProps) => {
   const highlightedColor = '#427EE3'
   const strokeColor = '#5A5A5A'
 
@@ -41,7 +43,13 @@ const ColorSelector = ({ backgroundColor, foregroundColor, isBackgroundActive }:
         marginTop: 4
       }}>
         <View>
-          <Tooltip content={(<Text>Hello</Text>)} style={{ borderRadius: 6 }}>
+          <Tooltip
+            tipSize={12}
+            borderWidth={1}
+            borderColor='#555555'
+            backgroundColor='#252525'
+            content={(<ColorPicker />)}
+            style={{ borderRadius: 6 }}>
             <Svg width={30} height={48} viewBox="0 0 30 48" fill="none">
               <G data-tip data-for="colorPicker">
                 {isBackgroundActive ? (<TopColorSwatch />) : (<BottomColorSwatch />)}

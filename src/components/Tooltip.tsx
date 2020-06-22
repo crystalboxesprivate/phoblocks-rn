@@ -8,6 +8,7 @@ type TooltipProps = {
   borderWidth?: number,
   borderColor?: string,
   style?: StyleProp<ViewStyle>,
+  tipSize?: number,
   children: JSX.Element | JSX.Element[]
 }
 
@@ -17,13 +18,15 @@ export enum TooltipPlacement {
 
 
 
-export const Tooltip = ({ backgroundColor, borderWidth, borderColor,
+export const Tooltip = ({ tipSize, backgroundColor, borderWidth, borderColor,
   style,
   content,
   children }: TooltipProps) => {
   const [visible, setVisible] = useState(false)
   const [contentLayout, onContentLayout] = useLayout()
   const [childLayout, onChildLayout] = useLayout()
+
+  const tipSize2 = tipSize || 6
 
   const { containerStyle, tooltipContentStyle, arrowStyle } = (() => {
     return {
@@ -38,6 +41,8 @@ export const Tooltip = ({ backgroundColor, borderWidth, borderColor,
         left: 30
       },
       tooltipContentStyle: {
+        marginLeft: -tipSize2 / 2,
+        paddingLeft: tipSize2 / 2,
         marginTop: contentLayout != null
           ? contentLayout.height / 2 * -1
           : 0,
@@ -46,6 +51,8 @@ export const Tooltip = ({ backgroundColor, borderWidth, borderColor,
         borderColor: borderColor || 'black',
       },
       arrowStyle: {
+        width: tipSize2,
+        height: tipSize2,
         backgroundColor: backgroundColor ? backgroundColor as string : 'white',
         borderLeftWidth: borderWidth || 1,
         borderLeftColor: borderColor || 'black',
@@ -60,7 +67,7 @@ export const Tooltip = ({ backgroundColor, borderWidth, borderColor,
       {visible
         ? (<View style={[containerStyle, styles.container]}>
           <View style={[arrowStyle, styles.arrow]}></View>
-          <View onLayout={onContentLayout} style={[tooltipContentStyle, styles.content, style]}>{content}</View></View>)
+          <View onLayout={onContentLayout} style={[tooltipContentStyle, style]}>{content}</View></View>)
         : null
       }
       <TouchableHighlight onPress={() => { setVisible(!visible) }}>
@@ -72,7 +79,6 @@ export const Tooltip = ({ backgroundColor, borderWidth, borderColor,
   )
 }
 
-const tipSize = 6
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
@@ -80,13 +86,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     zIndex: 200,
   },
-  content: {
-    marginLeft: -tipSize / 2,
-    paddingLeft: tipSize / 2,
-  },
   arrow: {
-    width: tipSize,
-    height: tipSize,
     transform: [{ rotate: '45deg' }],
     zIndex: 300,
   }
