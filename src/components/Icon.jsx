@@ -226,6 +226,8 @@ const iconsList = {
   mask: () => (
     <Svg width={20} height={17} viewBox="0 0 20 17" fill="none">
       <Path
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M20 0H0v17h20V0zM10 14a5 5 0 100-10 5 5 0 000 10z"
         fill="#C4C4C4"
       />
