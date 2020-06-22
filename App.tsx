@@ -15,6 +15,7 @@ import { ViewerAction } from './src/core/application/redux/viewer';
 import { LayerType, LayerActions, Layer } from './src/core/application/redux/layer';
 import { Config } from './src/config';
 import { FloatingPanelManager } from './src/components/ui/FloatingPanel';
+import { UIAction } from './src/core/application/redux/ui';
 
 
 class Phoblocks extends React.Component<{}, {}> {
@@ -95,6 +96,9 @@ export default function App() {
 
   store.dispatch(LayerActions.addLayerMask(l3))
   store.dispatch(LayerActions.toggleVisible(l3))
+
+  store.dispatch(UIAction.layersListButton())
+  // store.dispatch(UIAction.layerPropertiesButton())
 
   return (
     <Provider store={store}>

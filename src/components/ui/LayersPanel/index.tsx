@@ -29,13 +29,14 @@ export const LayersPanel = connect((state: PhoblocksState) => ({
   setDivisor: UIAction.setLayerListSplitPosition
 })(
   ({ listVisible, propertiesVisible, divisor, setDivisor }: LayersPanelProps) => {
-    const [measures, setMeasures] = useState({ measured: false, layoutHeight: 0, layersTitleHeight: 0, scrollListHeight: 0 })
+    const [measures, setMeasures] = useState({ layoutHeight: 0, layersTitleHeight: 0, scrollListHeight: 0 })
+    const [layoutMeasured, setLayoutMeasured] = useState(false)
     const layoutContainer: any = useRef(null)
     const titleContainer: any = useRef(null)
     const listItemContainer: any = useRef(null)
 
     const isVisible = listVisible || propertiesVisible
-    const opacityAnim = useRef(new Animated.Value(isVisible ? 1 : 0)).current
+    const opacityAnim = useRef(new Animated.Value(isVisible ? 0 : 1)).current
     const propsHeightAnim = useRef(new Animated.Value(0)).current
 
     let div = 0
@@ -54,12 +55,14 @@ export const LayersPanel = connect((state: PhoblocksState) => ({
     }
 
     useEffect(() => {
-      if (!measures.measured) {
-        measures.measured = true
-        setMeasures(measures)
+      if (!layoutMeasured) {
         return
       }
+      const newMeasures = { ...measures }
+      setMeasures(newMeasures)
+    }, [layoutMeasured])
 
+    useEffect(() => {
       Events.addListener('LayerDragTitleStart', onTitleDragStart)
       Events.addListener('LayerDragTitleMove', onTitleDragMove)
       Events.addListener('LayerDragTitleEnd', onTitleDragRelease)
@@ -69,25 +72,27 @@ export const LayersPanel = connect((state: PhoblocksState) => ({
         duration: 200
       }).start()
 
-
+      const toValue = propertiesVisible
+        ? listVisible
+          ? divisor
+          : 0
+        : listVisible
+          ? 1
+          : 0
       Animated.timing(propsHeightAnim, {
-        toValue: propertiesVisible
-          ? listVisible
-            ? divisor
-            : 0
-          : listVisible
-            ? 1
-            : 0,
+        toValue,
         duration: 300
       }).start()
 
       return cleanup
     })
 
-    if (!measures.measured) {
+
+    if (!layoutMeasured) {
       return (<View style={[LayersPanelStyles.container, { opacity: 0 }]} ref={layoutContainer}
         onLayout={(e) => {
           measures.layoutHeight = e.nativeEvent.layout.height
+          setLayoutMeasured(true)
         }}
       >
         <View
