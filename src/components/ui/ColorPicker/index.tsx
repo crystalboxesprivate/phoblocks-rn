@@ -1,15 +1,18 @@
 import React, { useRef } from 'react'
-import { View, Text, StyleSheet } from 'react-native'
+import { View, Text, StyleSheet, GestureResponderEvent } from 'react-native'
 import Svg, { Path, Circle } from 'react-native-svg'
 import { Styles } from '../Styles'
 import Theme from '../../Theme'
-import { useLayout } from '../../Hooks'
+import { useLayout, useEventLocalPosition } from '../../Hooks'
 import { Texture, PixelImage } from './PixelImage'
 
 import convert from 'color-convert'
 
-const HueSlider = ({ hue }: { hue: number, setHue: (val: number) => void }) => {
+const HueSlider = ({ hue, setHue }: { hue: number, setHue: (val: number) => void }) => {
   const [layout, onLayout] = useLayout()
+  const [getLocalPosition, onResponderGrant] = useEventLocalPosition()
+  const isDown = useRef(false)
+
   const size = 16
 
   const tex = useRef(new Texture(size, size)).current
@@ -20,8 +23,24 @@ const HueSlider = ({ hue }: { hue: number, setHue: (val: number) => void }) => {
       }
     }
   }
+
   return (
-    <View onLayout={onLayout} style={[styles.hueSliderContainer, { position: 'relative', }]}>
+    <View
+      onStartShouldSetResponder={() => true}
+      onResponderGrant={(e) => { 
+        onResponderGrant(e)
+        isDown.current = true
+        setHue(getLocalPosition(e)[0]/(layout?.width || 1))
+
+      }}
+      onResponderRelease={() => { isDown.current = false }}
+      onResponderMove={(e) => {
+        if (isDown.current) {
+          setHue(getLocalPosition(e)[0]/(layout?.width || 1))
+        }
+      }}
+      onLayout={onLayout}
+      style={[styles.hueSliderContainer, { position: 'relative', }]}>
       <PixelImage style={{ position: 'absolute', width: layout?.width || 1, borderRadius: 6, height: layout?.height || 1 }} texture={tex} />
       <View style={{ marginLeft: hue * (layout?.width || 1) }}>
         <View style={styles.hueSliderHandle} />
@@ -38,15 +57,11 @@ const SaturationValuePad = ({ hsv, setValue }: SaturationPadProps) => {
   const [layout, onLayout] = useLayout()
   const size = 64
   const textureData = useRef({ tex: new Texture(size, size), h: -1 }).current
-  const isDown = useRef({
-    enabled: false,
-    startX: -1,
-    startY: -1,
-    left: -1, top: -1
-  }).current
+  const isDown = useRef(false)
+
+  const [getLocalPosition, onResponderGrant] = useEventLocalPosition()
 
   if (hsv[0] != textureData.h) {
-    console.log('gen')
     textureData.h = hsv[0]
     for (let y = 0; y < size; y++) {
       for (let x = 0; x < size; x++) {
@@ -59,22 +74,18 @@ const SaturationValuePad = ({ hsv, setValue }: SaturationPadProps) => {
     <View
       onStartShouldSetResponder={() => true}
       onResponderGrant={(e) => {
-        isDown.enabled = true;
-        isDown.startX = e.nativeEvent.pageX
-        isDown.startY = e.nativeEvent.pageY
-        isDown.left = (layout?.width || 1) * hsv[1] / 100
-        isDown.top = (layout?.height || 1) * (100 - hsv[2]) / 100
+        onResponderGrant(e)
+        isDown.current = true
+        const localPosition = getLocalPosition(e)
+        setValue(localPosition[0] / (layout?.width || 1) * 100,
+          (1 - (localPosition[1] / (layout?.height || 1))) * 100)
       }}
-      onResponderRelease={() => { isDown.enabled = false }}
+      onResponderRelease={() => { isDown.current = false }}
       onResponderMove={(e) => {
-        if (isDown.enabled) {
-          const deltaX = e.nativeEvent.pageX - isDown.startX
-          const deltaY = e.nativeEvent.pageY - isDown.startY
-          console.log({ deltaX, deltaY })
-
-          setValue(
-            (isDown.left + deltaX) / (layout?.width || 1) * 100, ((layout?.height || 1) - isDown.top - deltaY) / (layout?.height || 1) * 100
-          )
+        if (isDown.current) {
+          const localPosition = getLocalPosition(e)
+          setValue(localPosition[0] / (layout?.width || 1) * 100,
+            (1 - (localPosition[1] / (layout?.height || 1))) * 100)
         }
       }}
 

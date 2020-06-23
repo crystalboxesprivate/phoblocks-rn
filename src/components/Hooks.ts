@@ -1,7 +1,28 @@
-import { LayoutRectangle, LayoutChangeEvent } from 'react-native'
+import { LayoutRectangle, LayoutChangeEvent, GestureResponderEvent } from 'react-native'
 import React, { useState, useRef, useEffect } from 'react'
 
 type LayoutChangeCallback = (e: LayoutChangeEvent) => void
+
+export const useEventLocalPosition = (): [
+  (e: GestureResponderEvent) => [number, number],
+  (e: GestureResponderEvent) => void
+] => {
+  const globalOffset = useRef([-1, -1]).current
+  const onResponderGrant = (e: GestureResponderEvent) => {
+    globalOffset[0] = e.nativeEvent.pageX - e.nativeEvent.locationX
+    globalOffset[1] = e.nativeEvent.pageY - e.nativeEvent.locationY
+  }
+
+  const getLocalPosition = (e: GestureResponderEvent): [number, number]=> {
+    return [e.nativeEvent.pageX - globalOffset[0],
+    e.nativeEvent.pageY - globalOffset[1]]
+  }
+
+  return [
+    getLocalPosition,
+    onResponderGrant
+  ]
+}
 
 export const useLayout = (): [LayoutRectangle | null, LayoutChangeCallback] => {
   const [layout, setLayout]: [LayoutRectangle | null, any] = useState(null)
