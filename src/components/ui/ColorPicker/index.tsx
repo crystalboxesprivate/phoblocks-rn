@@ -27,16 +27,16 @@ const HueSlider = ({ hue, setHue }: { hue: number, setHue: (val: number) => void
   return (
     <View
       onStartShouldSetResponder={() => true}
-      onResponderGrant={(e) => { 
+      onResponderGrant={(e) => {
         onResponderGrant(e)
         isDown.current = true
-        setHue(getLocalPosition(e)[0]/(layout?.width || 1))
+        setHue(getLocalPosition(e)[0] / (layout?.width || 1))
 
       }}
       onResponderRelease={() => { isDown.current = false }}
       onResponderMove={(e) => {
         if (isDown.current) {
-          setHue(getLocalPosition(e)[0]/(layout?.width || 1))
+          setHue(getLocalPosition(e)[0] / (layout?.width || 1))
         }
       }}
       onLayout={onLayout}

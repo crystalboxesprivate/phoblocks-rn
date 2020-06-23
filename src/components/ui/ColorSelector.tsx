@@ -5,7 +5,7 @@ import { Tooltip } from '../Tooltip'
 import { ColorPicker } from './ColorPicker'
 import { useSelector, useDispatch } from 'react-redux'
 import { PhoblocksState } from '../../core/application/redux'
-import { ColorActions, color } from '../../core/application/redux/color'
+import { ColorActions, color } from '../../core/application/redux/editor/color'
 import convert from 'color-convert'
 
 const tooltipProps = {

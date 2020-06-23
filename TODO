@@ -1,7 +1,28 @@
 - [ ] Color Picker
   - [x] Generate texture for saturation and value
-  - [ ] Gesture handling
-    - [ ] Hue slider 
-    - [ ] saturation  
+  - [x] Gesture handling
+    - [x] Hue slider 
+    - [x] saturation value pad
   - [ ] Animations
-  
+  - [ ] clamp position
+    - [ ] visually
+    - [ ] in range that makes sense
+  - [ ] color spaces
+    - [x] HSV
+- [ ] Tool selection
+  - [ ] Show tooltips (if selected)
+- [ ] Dobule click on title to rename the document
+  - [ ] Modal layer with the rename window
+- [ ] editor reducer
+  - [ ] contains color
+  - [ ] contains tools
+
+- [ ] Layers Panel v2
+  - [ ] Write panel display with Animations
+  - [ ] Layer List 2
+    - [ ] Layer view has a gesture responder instead of touchables
+      - [ ] catch positions by measuring where each block is placed
+      - [ ] catch hold gesture
+      - [ ] catch swipe gesture for layer deletion
+      - [ ] layer reordering without Animations
+      

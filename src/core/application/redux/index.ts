@@ -1,6 +1,6 @@
 import { document, ColorMode, DocumentDimensions, LayersRegistry } from './document'
 import { viewer } from './viewer'
-import { color, ColorState } from './color'
+import { color, ColorState } from './editor/color'
 import { combineReducers, } from 'redux'
 import { UIState, ui } from './ui'
 

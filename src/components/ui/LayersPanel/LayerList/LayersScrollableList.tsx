@@ -6,6 +6,7 @@ import { Animated, ScrollView } from 'react-native'
 import LayerView from "./LayerView"
 import { DraggableList } from "./DraggableList"
 import { DocumentActions } from "../../../../core/application/redux/document"
+import { overlayLog } from "../../../DebugOverlay"
 
 
 type FlatLayerListEntry = {
@@ -69,7 +70,6 @@ type LayersScrollableListProps = {
   height: number,
   listHeight: number
   parentLayer: ParentLayerFuncType
-  isHidden: boolean
   hierarchyChangeId: number
 }
 
@@ -158,6 +158,7 @@ export const LayersScrollableList = connect((state: PhoblocksState) => ({
         flatListIndex = next
       }
       this.cacheId = this.props.hierarchyChangeId
+      overlayLog('cache generated')
     }
 
     elems: JSX.Element[] = []
@@ -213,23 +214,28 @@ export const LayersScrollableList = connect((state: PhoblocksState) => ({
       }
 
       return (<ScrollView style={{ height: this.props.height }}>
+
+        {/*
         <DraggableList isConstantBlockSize={true} setChangeListOrder={setChangeListOrder} key={`list:${this.cacheId}`} dragStartDelay={500}>
-          {(this.generatedCache.map(x => <LayerViewHolder
-            onGroupButtonPress={x.onGroupButtonPress}
-            key={x.key}
-            layer={this.props.entries[x.id]}
-            level={x.level}
-            marginTop={x.anim ? x.anim.interpolate({
-              inputRange: [0, 1],
-              outputRange: [0, -this.props.listHeight]
-            }) : 0}
-            opacity={x.anim ? x.anim.interpolate({
-              inputRange: [0, 1],
-              outputRange: [1, 0]
-            }) : 1}
-          />))}
+         */}
+        {(this.generatedCache.map(x => <LayerViewHolder
+          onGroupButtonPress={x.onGroupButtonPress}
+          key={x.key}
+          layer={this.props.entries[x.id]}
+          level={x.level}
+          marginTop={x.anim ? x.anim.interpolate({
+            inputRange: [0, 1],
+            outputRange: [0, -this.props.listHeight]
+          }) : 0}
+          opacity={x.anim ? x.anim.interpolate({
+            inputRange: [0, 1],
+            outputRange: [1, 0]
+          }) : 1}
+        />))}
+        {/*
         </DraggableList>
-      </ScrollView>)
+         */}
+      </ScrollView >)
     }
   }
 )

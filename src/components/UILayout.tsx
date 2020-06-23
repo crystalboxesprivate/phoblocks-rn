@@ -21,8 +21,15 @@ const UILayout = () => {
     <Toolbar />
     <LayersToolbar />
 
-    <LayersPanel />
     <LayersThumbnailsPanel />
+    <LayersPanel />
+
+    {/*
+    
+    
+
+    
+    */}
   </View>)
 }
 

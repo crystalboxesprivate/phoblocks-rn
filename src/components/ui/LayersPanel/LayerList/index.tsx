@@ -11,7 +11,6 @@ export type LayerListProps = {
   availableHeight: number
   layoutHeight: number
   listHeight: number
-  isHidden: boolean
 }
 
 export const LayersListAnimated = Animated.createAnimatedComponent(class extends React.Component<LayerListProps> {
@@ -20,16 +19,14 @@ export const LayersListAnimated = Animated.createAnimatedComponent(class extends
     const heightThreshold = 10
     const scrollHeightAvailable = availableHeight - layoutHeight
 
-    let hidden = this.props.isHidden
 
     if (availableHeight < heightThreshold) {
-      hidden = true
+      return null
     }
-
     const heightStyle = layoutHeight != 0 && listHeight != 0 ? { height: availableHeight } : {}
-    return (<View style={hidden ? [] : [LayersPanelStyles.layersList, heightStyle]} >
-      {hidden ? null : <Text style={LayersPanelStyles.layersListTitle}>Layers</Text>}
-      <LayersScrollableList isHidden={hidden} listHeight={listHeight} height={scrollHeightAvailable} />
+    return (<View style={[LayersPanelStyles.layersList, heightStyle]} >
+      {<Text style={LayersPanelStyles.layersListTitle}>Layers</Text>}
+      <LayersScrollableList listHeight={listHeight} height={scrollHeightAvailable} />
     </View>)
   }
 })
