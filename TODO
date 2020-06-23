@@ -1,0 +1,6 @@
+- [ ] Color Picker
+  - [x] Generate texture for saturation and value
+  - [ ] Gesture handling
+    - [ ] Hue slider 
+    - [ ] saturation  
+  - [ ] Animations
