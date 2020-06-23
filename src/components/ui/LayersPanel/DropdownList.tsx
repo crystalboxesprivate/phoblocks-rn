@@ -89,7 +89,7 @@ export const DropdownList = ({ title, items, selectedItem, setValue }: DropdownL
       </FloatingPanel>
       {title != null ? <Text style={styles.dropdownTitle}>{title}</Text> : null}
       <TouchableOpacity onPress={() => setListVisible(!listVisible)}>
-        <View ref={buttonRef} onLayout={() => { console.log('onLayout') }} style={Styles.buttonBodyMargin}>
+        <View ref={buttonRef} style={Styles.buttonBodyMargin}>
           <ButtonBody>
             <Text style={Styles.font16}>{selectedItem}</Text>
             <View>

@@ -226,7 +226,7 @@ const LayerProperties_ = ({ id, name, blendMode }: { id: number, name: string, b
 }
 
 const LayerProperties = connect((state: PhoblocksState) => {
-  const layer = state.document.layersRegistry.entries[state.document.activeLayer]
+  const layer = state.document.layersRegistry.entries[state.document.layersRegistry.activeLayer]
   return ({
     id: layer.id,
     name: layer.name,

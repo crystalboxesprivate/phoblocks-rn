@@ -69,6 +69,8 @@ type LayersScrollableListProps = {
   height: number,
   listHeight: number
   parentLayer: ParentLayerFuncType
+  isHidden: boolean
+  hierarchyChangeId: number
 }
 
 type LayersScrollableListState = {
@@ -76,13 +78,14 @@ type LayersScrollableListState = {
 }
 
 export const LayersScrollableList = connect((state: PhoblocksState) => ({
+  hierarchyChangeId: state.document.layersRegistry.hierarchyChangeId,
   entries: state.document.layersRegistry.entries,
   children: state.document.layersRegistry.docChildren,
 }), { parentLayer: DocumentActions.parentLayer })(
   class extends React.Component<LayersScrollableListProps, LayersScrollableListState>{
-    cacheGenerated = false
     animatedValues = new Map<number, { layer: Layer, anim: Animated.Value | any }>()
     generatedCache: LayerViewEntry[] = []
+    cacheId = -1
     state = {
       updateId: 0
     }
@@ -154,12 +157,12 @@ export const LayersScrollableList = connect((state: PhoblocksState) => ({
         }
         flatListIndex = next
       }
-      this.cacheGenerated = true
+      this.cacheId = this.props.hierarchyChangeId
     }
 
     elems: JSX.Element[] = []
     render() {
-      if (!this.cacheGenerated) {
+      if (this.cacheId != this.props.hierarchyChangeId) {
         this.generateCache()
       }
 
@@ -185,10 +188,6 @@ export const LayersScrollableList = connect((state: PhoblocksState) => ({
 
 
         // invalidate cache
-        this.cacheGenerated = false
-
-        this.setState({ updateId: this.state.updateId + 1 })
-
         if (!target || !oldOb) {
           console.log({ target, oldOb })
           return
@@ -202,7 +201,6 @@ export const LayersScrollableList = connect((state: PhoblocksState) => ({
         // if the layer with clipping mask goes to the 
         // find out which parent is the oldOb
         // get old object parent
-        // this.props.entries[oldOb.id].parent
         const parent = this.props.entries[oldOb.id].parent
         let listPosition = -1
         if (parent == -1) {
@@ -211,15 +209,11 @@ export const LayersScrollableList = connect((state: PhoblocksState) => ({
           listPosition = this.props.entries[parent].layers.indexOf(oldOb.id)
         }
         this.props.parentLayer(target.id, parent, listPosition)
-
-
-
-
         console.log({ oldIndex, newIndex })
       }
 
       return (<ScrollView style={{ height: this.props.height }}>
-        <DraggableList isConstantBlockSize={true} setChangeListOrder={setChangeListOrder} key={`list:${this.state.updateId}`} dragStartDelay={500}>
+        <DraggableList isConstantBlockSize={true} setChangeListOrder={setChangeListOrder} key={`list:${this.cacheId}`} dragStartDelay={500}>
           {(this.generatedCache.map(x => <LayerViewHolder
             onGroupButtonPress={x.onGroupButtonPress}
             key={x.key}

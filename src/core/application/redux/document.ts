@@ -66,8 +66,8 @@ export const DocumentActionType = [
   DA_SET_SELECTED_LAYER
 ]
 
-const activeLayer = (state = 0, action: any) =>
-  action.type === DA_SET_SELECTED_LAYER ? action.id : state
+// const activeLayer = (state = 0, action: any) =>
+//   action.type === DA_SET_SELECTED_LAYER ? action.id : state
 
 const maskEditing = (state = false, action: any) => {
   return action.type === DA_SET_MASK_EDITING ? action.enabled : state
@@ -93,30 +93,47 @@ const dimensions = (state = new DocumentDimensions, action: any) => {
 }
 
 
-export class LayersRegistry {
+export type LayersRegistry = {
   entries: Layer[]
   docChildren: number[]
-  constructor(entries: Layer[] = [], children: number[] = []) {
-    this.entries = entries
-    this.docChildren = children
+  activeLayer: number
+  hierarchyChangeId: number
+}
+
+const arrayMove = (arr: any[], old_index: number, new_index: number) => {
+  if (new_index >= arr.length) {
+    var k = new_index - arr.length + 1;
+    while (k--) {
+      arr.push(undefined);
+    }
   }
+  arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
+  return arr; // for testing
+};
+
+type AddLayerAction = {
+  layerType: LayerType,
+  parent: number,
+  previousLayer: number
 }
 
 
-const layersRegistry = (state = new LayersRegistry, action: any) => {
+const layersRegistry = (state: LayersRegistry = { docChildren: [], activeLayer: 0, entries: [], hierarchyChangeId: 0 }, action: any) => {
   if (LayerActionType.indexOf(action.type) !== -1) {
 
     const layerAction = action
     const newEntries = [...state.entries]
     const newChildren = [...state.docChildren]
     newEntries[layerAction.id] = layerReducer(newEntries[layerAction.id], layerAction)
-    return new LayersRegistry(newEntries, newChildren)
+    return { ...state, entries: newEntries, docChildren: newChildren }
 
   } else {
     switch (action.type) {
+      case DA_SET_SELECTED_LAYER:
+        return { ...state, activeLayer: action.id }
       case DA_ADD_LAYER:
         {
-          const { layerType, parent, listOrder } = action as { layerType: LayerType, parent: number, listOrder: number }
+          const { layerType, parent, previousLayer } = action as AddLayerAction
           const layer = createLayer(layerType)
           const newEntries = [...state.entries, layer]
           const nextId = state.entries.length
@@ -136,59 +153,49 @@ const layersRegistry = (state = new LayersRegistry, action: any) => {
           if (parent !== -1) {
             const parentObject = newEntries[parent]
             layer.parent = parent
+            const newId = parentObject.layers.length
             parentObject.layers.push(nextId)
+            if (previousLayer !== -1) {
+              const idx = parentObject.layers.indexOf(previousLayer) + 1
+              if (idx != parentObject.layers.length) {
+                arrayMove(parentObject.layers, newId, idx)
+              }
+            }
           } else {
+            const newId = newChildren.length
             newChildren.push(nextId)
-          }
-          return new LayersRegistry(newEntries, newChildren)
-        }
-      case DA_PARENT_LAYER:
-        const newEntries = [...state.entries]
-        const newChildren = [...state.docChildren]
-
-        const { layerId, parentId } = action as { layerId: number, parentId: number }
-
-        // remove from the old parent
-        const layer = newEntries[layerId]
-        // if (layer.parent === parentId) {
-        //   // WARN: illegal operation
-        //   return state
-        // }
-        if (layer.parent === -1) {
-          newChildren.splice(newChildren.indexOf(layerId), 1)
-        } else {
-          newEntries[layer.parent].layers.splice(newEntries[layer.parent].layers.indexOf(layerId), 1)
-        }
-
-        const arrayMove = (arr: any[], old_index: number, new_index: number) => {
-          if (new_index >= arr.length) {
-            var k = new_index - arr.length + 1;
-            while (k--) {
-              arr.push(undefined);
+            if (previousLayer !== -1) {
+              const idx = newChildren.indexOf(previousLayer) + 1
+              if (idx != newChildren.length) {
+                arrayMove(newChildren, newId, idx)
+              }
             }
           }
-          arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
-          return arr; // for testing
-        };
 
-        // add to the new parent
-        if (parentId === -1) {
-          newChildren.push(layerId)
-          // change its list position
-          if (action.listPosition) {
-            arrayMove(newChildren, newChildren.length - 1, action.listPosition)
-          }
+          return { activeLayer: layer.id, hierarchyChangeId: state.hierarchyChangeId + 1, entries: newEntries, docChildren: newChildren }
+        }
+      case DA_PARENT_LAYER:
+        const entries = [...state.entries]
+        const children = [...state.docChildren]
+        const { layerId, parentId, listPosition } = action
+        const layer = entries[layerId]
+        const getCollection = (id: number) => (id === -1 ? children : entries[id].layers)
+        if (layer.parent === parentId) {
+          const collection = getCollection(parentId)
+          arrayMove(collection, collection.indexOf(layerId), listPosition)
         } else {
-          newEntries[parentId].layers.push(layerId)
-          // change its list position
-          if (action.listPosition) {
-            arrayMove(newEntries[parentId].layers, newChildren.length - 1, action.listPosition)
+          // remove from the old parent
+          let collection = getCollection(layer.parent)
+          collection.splice(collection.indexOf(layerId), 1)
+          // reparent
+          layer.parent = parentId
+          collection = getCollection(parentId)
+          collection.push(layerId)
+          if (listPosition != undefined) {
+            arrayMove(collection, collection.indexOf(layerId), listPosition)
           }
         }
-
-        // set the new parent id for the layer
-        layer.parent = parentId
-        return new LayersRegistry(newEntries, newChildren)
+        return { ...state, entries, docChildren: children, hierarchyChangeId: state.hierarchyChangeId + 1, }
       default:
         return state
     }
@@ -196,20 +203,18 @@ const layersRegistry = (state = new LayersRegistry, action: any) => {
 }
 
 export const DocumentActions = {
-
   setActiveLayer: (id: number) => ({ type: DA_SET_SELECTED_LAYER, id }),
   setMaskEditing: (enabled: boolean) => ({ type: DA_SET_MASK_EDITING, enabled }),
   close: () => ({ type: DA_CLOSE }),
   setColorMode: (colorMode: ColorMode) => ({ type: DA_SET_COLOR_MODE, colorMode }),
-
   setName: (name: string) => ({ type: DA_SET_NAME, name }),
-  addLayer: (layerType: LayerType, parent = -1, listOrder = -1) =>
-    ({ type: DA_ADD_LAYER, layerType, parent, listOrder }),
+  addLayer: (layerType: LayerType, parent = -1, previousLayer = -1) =>
+    ({ type: DA_ADD_LAYER, layerType, parent, previousLayer }),
   parentLayer: (layerId: number, parentId: number, listPosition?: number) => ({ type: DA_PARENT_LAYER, layerId, parentId, listPosition }),
   setWidthHeight: (width: number, height: number) =>
     ({ type: DA_SET_IMAGE_RESOLUTION, width: width, height: height })
 }
 
 export const document = combineReducers({
-  closed, name, colorMode, dimensions, layersRegistry, activeLayer, maskEditing
+  closed, name, colorMode, dimensions, layersRegistry, maskEditing
 })

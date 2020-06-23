@@ -4,9 +4,16 @@ import Theme from '../Theme'
 import { View } from 'react-native'
 import Svg, { Path } from "react-native-svg"
 
-const ToolIcon = ({ name, isActive, style, activeColor, hasOptions }: {
-  name: string, isActive?: boolean, style?: object, activeColor?: string, hasOptions?: boolean
-}) => {
+type ToolIconProps = {
+  name: string
+  isActive?: boolean
+  style?: object
+  activeColor?: string
+  hasOptions?: boolean
+  iconFill?: string
+}
+
+const ToolIcon = ({ name, isActive, style, activeColor, hasOptions, iconFill }: ToolIconProps) => {
   activeColor = activeColor || '#3571DE'
   style = style || {}
   isActive = isActive || false
@@ -24,7 +31,7 @@ const ToolIcon = ({ name, isActive, style, activeColor, hasOptions }: {
       justifyContent: 'center', ...activeStyle
     }}>
       <View >
-        <Icon name={name} fill={null} />
+        <Icon name={name} fill={iconFill} />
       </View>
       {hasOptions ? (<View style={{ position: 'absolute', right: 4, bottom: 1 }}>
         <Svg width={6} height={6} viewBox="0 0 6 6" fill="none">

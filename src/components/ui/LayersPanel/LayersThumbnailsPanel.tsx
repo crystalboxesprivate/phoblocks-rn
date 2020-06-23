@@ -72,7 +72,7 @@ type LayersThumbnailsPanelProps = {
 }
 
 export const LayersThumbnailsPanel = connect((state: PhoblocksState) => {
-  const activeLayer = state.document.activeLayer
+  const activeLayer = state.document.layersRegistry.activeLayer
   let parentId = state.document.layersRegistry.entries[activeLayer].parent
   let level = 0
   let children = []

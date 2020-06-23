@@ -9,7 +9,8 @@ type TooltipProps = {
   borderColor?: string,
   style?: StyleProp<ViewStyle>,
   tipSize?: number,
-  children: JSX.Element | JSX.Element[]
+  children: JSX.Element | JSX.Element[],
+  visible: boolean
 }
 
 export enum TooltipPlacement {
@@ -19,10 +20,9 @@ export enum TooltipPlacement {
 
 
 export const Tooltip = ({ tipSize, backgroundColor, borderWidth, borderColor,
-  style,
+  style, visible,
   content,
   children }: TooltipProps) => {
-  const [visible, setVisible] = useState(false)
   const [contentLayout, onContentLayout] = useLayout()
   const [childLayout, onChildLayout] = useLayout()
 
@@ -67,14 +67,12 @@ export const Tooltip = ({ tipSize, backgroundColor, borderWidth, borderColor,
       {visible
         ? (<View style={[containerStyle, styles.container]}>
           <View style={[arrowStyle, styles.arrow]}></View>
-          <View onLayout={onContentLayout} style={[tooltipContentStyle, style]}>{content}</View></View>)
+          <View onLayout={onContentLayout} style={[tooltipContentStyle, style]}>{content()}</View></View>)
         : null
       }
-      <TouchableHighlight onPress={() => { setVisible(!visible) }}>
-        <View onLayout={onChildLayout}>
-          {children}
-        </View>
-      </TouchableHighlight>
+      <View onLayout={onChildLayout}>
+        {children}
+      </View>
     </View >
   )
 }

@@ -46,7 +46,6 @@ export type UIState = {
 
 export const ui = combineReducers({ layersButtons, })
 
-
 export const UIAction = {
   layersThumbnailsButton: () => ({ type: UI_LAYER_THUMBNAILS_BUTTON }),
   layersListButton: () => ({ type: UI_LAYERS_LIST_BUTTON }),

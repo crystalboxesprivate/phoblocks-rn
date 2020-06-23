@@ -129,7 +129,7 @@ const LayerView_ = ({
 const LayerView = connect((state: PhoblocksState, ownProps: any) => ({
   layer: ownProps.layer as Layer,
   level: ownProps.level as number,
-  selected: state.document.activeLayer === (ownProps.layer as Layer).id,
+  selected: state.document.layersRegistry.activeLayer === (ownProps.layer as Layer).id,
   maskEditing: state.document.maskEditing
 }), {
   toggleLayerVisible: LayerActions.toggleVisible,

@@ -120,14 +120,14 @@ export const LayersPanel = connect((state: PhoblocksState) => ({
       </View >)
     }
 
-    if ((opacityAnim as unknown as number) < 0.001) {
-      return null
-    }
+
+    const isHidden = (opacityAnim as unknown as number) < 0.001
 
     return (
       <Animated.View style={{ opacity: opacityAnim }}>
-        <View style={LayersPanelStyles.container} >
+        <View style={isHidden ? {} : LayersPanelStyles.container} >
           <LayersListAnimated
+            isHidden={isHidden}
             listHeight={measures.scrollListHeight}
             layoutHeight={measures.layoutHeight}
             availableHeight={propsHeightAnim.interpolate(
