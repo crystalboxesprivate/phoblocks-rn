@@ -1,10 +1,10 @@
 import { View, Text, StyleProp, StyleSheet, TouchableNativeFeedback, ScrollView, TouchableOpacity, ViewStyle, TouchableHighlight } from 'react-native'
 import Svg, { Path } from 'react-native-svg'
-import { Styles } from '../Styles'
+import { Styles } from './Styles'
 import React, { useState, useEffect } from 'react'
-import { useGlobalPositionLayout } from '../../Hooks'
-import Theme from '../../Theme'
-import { FloatingPanel, useFloatingPanel } from '../FloatingPanel'
+import { useGlobalPositionLayout } from '../Hooks'
+import Theme from '../Theme'
+import { FloatingPanel, useFloatingPanel } from './FloatingPanel'
 
 export const DROPDOWN_SEPARATOR = 'DROPDOWN_SEPARATOR'
 

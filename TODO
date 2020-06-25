@@ -18,11 +18,13 @@
   - [ ] contains tools
 
 - [ ] Layers Panel v2
-  - [ ] Write panel display with Animations
+  - [x] Write panel display with Animations
   - [ ] Layer List 2
     - [ ] Layer view has a gesture responder instead of touchables
       - [ ] catch positions by measuring where each block is placed
       - [ ] catch hold gesture
       - [ ] catch swipe gesture for layer deletion
       - [ ] layer reordering without Animations
+
+- [ ] Dropdown list: Fix global positioning by using the clicked mouse coordinates
       

@@ -1,8 +1,8 @@
 import { View } from "react-native"
-import { BlendMode, LayerActions } from "../../../core/application/redux/layer"
+import { BlendMode, LayerActions } from "../../core/application/redux/layer"
 import { DROPDOWN_SEPARATOR, DropdownList } from "./DropdownList"
 import { useSelector, useDispatch } from "react-redux"
-import { PhoblocksState } from "../../../core/application/redux"
+import { PhoblocksState } from "../../core/application/redux"
 import React from 'react'
 
 

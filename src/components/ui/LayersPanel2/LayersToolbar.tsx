@@ -6,8 +6,10 @@ import { connect, useSelector, useDispatch } from 'react-redux'
 import { PhoblocksState } from '../../../core/application/redux'
 import { UIAction, LayerListDisplayMode } from '../../../core/application/redux/ui'
 import { TouchableWithoutFeedback, View } from 'react-native'
-import { LayerType, LayerActions, Layer } from '../../../core/application/redux/layer'
-import { DocumentActionType, DocumentActions } from '../../../core/application/redux/document'
+import { LayerType, LayerActions } from '../../../core/application/redux/layer'
+import { DocumentActions } from '../../../core/application/redux/document'
+import { overlayLog } from '../../DebugOverlay'
+import { createSelector } from 'reselect'
 
 const activeColor = 'rgba(196, 196, 196, 0.5)'
 
@@ -52,6 +54,29 @@ const LayersButtons = connect((state: PhoblocksState) => ({
     </ToolGroup>
   ))
 
+const entriesSelector = (state: PhoblocksState) => state.document.layersRegistry.entries
+const activeLayerIdSelector = (state: PhoblocksState) => state.document.layersRegistry.activeLayer
+const docChildrenSelector = (state: PhoblocksState) => state.document.layersRegistry.docChildren
+const maskEditingSelector = (state: PhoblocksState) => state.document.maskEditing
+const layerDataSelector = createSelector(entriesSelector, activeLayerIdSelector, docChildrenSelector, (entries, active, docChildrenSelector) => {
+  const layer = entries[active]
+  let canContainClippingMask = true
+  const childCollection = layer.parent === -1 ? docChildrenSelector : entries[layer.parent].layers
+  if (childCollection.indexOf(layer.id) === 0) { canContainClippingMask = false }
+  const layerMask = layer.mask
+  const clippingMaskEnabled = layer.clippingMask
+  return {
+    id: layer.id,
+    type: layer.type,
+    locked: layer.locked,
+    visible: layer.visible,
+    parent: layer.parent,
+    layerMask,
+    canContainClippingMask,
+    clippingMaskEnabled
+  }
+})
+
 const LayersToolbar = () => {
   const { id,
     visible,
@@ -60,33 +85,16 @@ const LayersToolbar = () => {
     type,
     layerMask,
     canContainClippingMask,
-    maskEditing,
-    clippingMaskEnabled } = useSelector((state: PhoblocksState) => {
-      const layer = state.document.layersRegistry.entries[state.document.layersRegistry.activeLayer]
-      let canContainClippingMask = true
-      const childCollection = layer.parent === -1 ? state.document.layersRegistry.docChildren : state.document.layersRegistry.entries[layer.parent].layers
-      if (childCollection.indexOf(layer.id) === 0) { canContainClippingMask = false }
-      const layerMask = layer.mask
-      const maskEditing = state.document.maskEditing
-      const clippingMaskEnabled = layer.clippingMask
-      return {
-        id: layer.id,
-        type: layer.type,
-        locked: layer.locked,
-        visible: layer.visible,
-        parent: layer.parent,
-        layerMask,
-        canContainClippingMask,
-        maskEditing,
-        clippingMaskEnabled
-      }
-    })
+    clippingMaskEnabled } = useSelector(layerDataSelector)
+
+  const maskEditing = useSelector(maskEditingSelector)
   const dispatch = useDispatch()
   const toggleVisible = () => dispatch(LayerActions.toggleVisible(id))
   const setMaskEnabled = (enabled: boolean) => dispatch(LayerActions.setMaskEnabled(id, enabled))
   const setMaskTransformLocked = (enabled: boolean) => dispatch(LayerActions.setMaskTransformLocked(id, enabled))
   const setClippingMask = (enabled: boolean) => dispatch(LayerActions.setClippingMask(id, enabled))
   const addLayerMask = () => { dispatch(LayerActions.addLayerMask(id)) }
+
   //regular layer MASK
   // enable /disable mask mask
   // enable /disable transform mask

@@ -2,16 +2,16 @@ import Theme from '../../Theme'
 import { View, Text, StyleSheet, ScrollView, TouchableWithoutFeedback, Animated } from 'react-native'
 import Svg, { Path, Circle } from 'react-native-svg'
 import Slider, { SliderProps } from '../Slider'
-import { Layer, LayerActions } from '../../../core/application/redux/layer'
-import { connect } from 'react-redux'
+import { LayerActions } from '../../../core/application/redux/layer'
+import { useSelector, useDispatch } from 'react-redux'
 import { PhoblocksState } from '../../../core/application/redux'
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef } from 'react'
 import { Events } from '../../../core/events'
-import { LayerListDisplayMode } from '../../../core/application/redux/ui'
-import { DropdownList, ButtonBody } from '../DropdownList'
 import { Styles } from '../Styles'
+import { ButtonBody } from '../DropdownList'
 import { BlendingModeSelect } from '../BlendingModeSelect'
-
+import { overlayLog } from '../../DebugOverlay'
+import { createSelector } from 'reselect'
 
 const AnimatedCollapseIcon = Animated.createAnimatedComponent(class extends React.Component<{ rotation: number }, {}> {
   render = () => {
@@ -52,10 +52,9 @@ const Module = ({ title, children, closed, padding }: ModuleProps) => {
     children,
     <View key='spacer' style={{ paddingTop: padding || 20 }}></View>
   ])
-
   return (
-    <View style={[styles.module, {
-      paddingTop: padding || 20,
+    <View style={[styles.module, title == null ? { paddingTop: padding || 20 } : {}, {
+      backgroundColor: Theme.panelColor
     }]}>
       {title == null ? null : (
         <TouchableWithoutFeedback onPress={() => {
@@ -77,7 +76,10 @@ const Module = ({ title, children, closed, padding }: ModuleProps) => {
           ]).start();
           setIsClosed(!isClosed)
         }}>
-          <View style={[styles.moduleTitle, { paddingBottom: padding || 20 }]}>
+          <View style={[styles.moduleTitle, {
+            paddingTop: padding || 20,
+            paddingBottom: padding || 20, zIndex: 2, backgroundColor: Theme.panelColor
+          }]}>
             <AnimatedCollapseIcon rotation={rotationAnim.interpolate({
               inputRange: [0, 1],
               outputRange: [-90, 0]
@@ -107,40 +109,6 @@ const Module = ({ title, children, closed, padding }: ModuleProps) => {
   )
 }
 
-const LayerDragTitle = connect((state: PhoblocksState) => ({
-  listVisible: state.ui.layersButtons.layerListDisplayMode === LayerListDisplayMode.List
-}), {})(({ listVisible }) => {
-  let posY = 0
-  const opacityAnim = useRef(new Animated.Value(listVisible ? 1 : 0)).current
-  useEffect(() => {
-    Animated.timing(opacityAnim, { toValue: listVisible ? 1 : 0, duration: 100 }).start()
-  })
-  return (
-    <View
-      onStartShouldSetResponder={_ => true}
-      onResponderGrant={e => {
-        Events.invoke('LayerDragTitleStart')
-        posY = e.nativeEvent.pageY
-      }}
-      onResponderMove={e => Events.invoke('LayerDragTitleMove', e.nativeEvent.pageY - posY)}
-      onResponderRelease={e => Events.invoke('LayerDragTitleEnd', e.nativeEvent.pageY - posY)}
-    >
-      <View style={styles.layerDragTitle}>
-        <Animated.View style={{ opacity: opacityAnim }}>
-          <Svg width={30} height={4} viewBox="0 0 30 4" fill="none">
-            <Path
-              fillRule="evenodd"
-              clipRule="evenodd"
-              d="M0 2a2 2 0 012-2h26a2 2 0 110 4H2a2 2 0 01-2-2z"
-              fill="#6E6E6E"
-            />
-          </Svg>
-        </Animated.View>
-      </View>
-      <Text style={[{ marginLeft: 15 }, Styles.font16]}>Layer Properties</Text>
-    </View>
-  )
-})
 
 class LockableScrollView extends React.Component<{ id: string }, {
   enabled: boolean
@@ -168,23 +136,24 @@ class LockableScrollView extends React.Component<{ id: string }, {
   }
 }
 
-const OpacitySlider = connect((state: PhoblocksState, ownProps: SliderProps) => {
-  return ({
-    value: state.document.layersRegistry.entries[+ownProps.id].opacity,
-  })
-}, (dispatch: any, ownProps: SliderProps) => {
-  return {
-    setValue: (val: number) => {
-      dispatch(LayerActions.setOpacity(+ownProps.id, val))
-    }
-  }
-})(Slider)
+const OpacitySlider = (props: SliderProps) => {
+  const dispatch = useDispatch()
+  const value = useSelector((state: PhoblocksState) => state.document.layersRegistry.entries[+props.id].opacity)
+  const setValue = (val: number) => { dispatch(LayerActions.setOpacity(+props.id, val)) }
+  return (<Slider {...{ ...props, value, setValue }} />)
+}
 
-const LayerProperties_ = ({ id, name, blendMode }: { id: number, name: string, blendMode: string }) => {
+const activeLayerIdSelector = ((state: PhoblocksState) => state.document.layersRegistry.activeLayer)
+const entriesSelector = ((state: PhoblocksState) => state.document.layersRegistry.entries)
+const layerNameSelector = createSelector(activeLayerIdSelector, entriesSelector, (id, entries) => entries[id].name)
+
+export const LayerProperties = () => {
+  const id = useSelector(activeLayerIdSelector)
+  const name = useSelector(layerNameSelector)
+
   return (
     <View style={styles.layerProperties}>
       <View style={styles.layerPropertiesInnerBlock}>
-        <LayerDragTitle />
         <View style={styles.layerPreviewContainer}>
           <View style={styles.layerPropertiesPreview}></View>
           <Text style={Styles.font14}>{name}</Text>
@@ -200,10 +169,8 @@ const LayerProperties_ = ({ id, name, blendMode }: { id: number, name: string, b
             min={0}
             max={1}
           />
-
           <BlendingModeSelect id={id} />
         </Module>
-
         <Module padding={11}>
           <ButtonBody style={Styles.buttonBodyMargin}>
             <Svg style={{ marginRight: 1 }} width={18} height={18} viewBox="0 0 18 18" fill="none">
@@ -221,18 +188,13 @@ const LayerProperties_ = ({ id, name, blendMode }: { id: number, name: string, b
         <Module title='Effects' closed={true} />
         <Module title='Smart Filters' closed={true} />
       </LockableScrollView>
+      {/*
+
+      */}
     </View>
   )
 }
 
-const LayerProperties = connect((state: PhoblocksState) => {
-  const layer = state.document.layersRegistry.entries[state.document.layersRegistry.activeLayer]
-  return ({
-    id: layer.id,
-    name: layer.name,
-    blendMode: layer.blendMode
-  })
-}, {})(LayerProperties_)
 
 const styles = StyleSheet.create({
   moduleTitle: {
@@ -244,7 +206,6 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderColor: Theme.bgColor,
   },
-  layerDragTitle: { justifyContent: 'center', flexDirection: 'row', marginBottom: 12 },
   layerProperties: {
     backgroundColor: Theme.panelColor,
     flex: 1
@@ -252,8 +213,6 @@ const styles = StyleSheet.create({
   layerPropertiesInnerBlock: {
     paddingTop: 3,
     paddingBottom: 12,
-    borderTopWidth: 1,
-    borderColor: Theme.bgColor
   },
   layerPropertiesPreview: {
     width: 32,
@@ -266,5 +225,3 @@ const styles = StyleSheet.create({
   },
   layerPreviewContainer: { flexDirection: 'row', alignItems: 'center', marginLeft: 17, marginTop: 11 },
 })
-
-export default LayerProperties

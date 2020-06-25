@@ -1,12 +1,12 @@
 import React, { useRef, useEffect } from 'react'
 import { View, StyleSheet, ScrollView, TouchableHighlight, TouchableWithoutFeedback, Animated } from "react-native";
 import { connect } from "react-redux";
-import { PhoblocksState } from "../../../core/application/redux";
-import { Layer, LayerType, LayerActions } from "../../../core/application/redux/layer";
-import Theme from '../../Theme';
+import { PhoblocksState } from "../../core/application/redux";
+import { Layer, LayerType, LayerActions } from "../../core/application/redux/layer";
+import Theme from '../Theme';
 import Svg, { Rect } from "react-native-svg"
-import { DocumentActions } from '../../../core/application/redux/document';
-import { LayerListDisplayMode } from '../../../core/application/redux/ui';
+import { DocumentActions } from '../../core/application/redux/document';
+import { LayerListDisplayMode } from '../../core/application/redux/ui';
 
 
 // get active layer

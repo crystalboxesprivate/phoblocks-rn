@@ -102,7 +102,7 @@ export default function App() {
   store.dispatch(LayerActions.addLayerMask(l3))
   store.dispatch(LayerActions.toggleVisible(l3))
 
-  // store.dispatch(UIAction.layersListButton())
+  store.dispatch(UIAction.layersListButton())
   // store.dispatch(UIAction.layerPropertiesButton())
 
   return (

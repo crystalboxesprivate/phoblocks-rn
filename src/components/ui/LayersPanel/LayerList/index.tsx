@@ -19,7 +19,6 @@ export const LayersListAnimated = Animated.createAnimatedComponent(class extends
     const heightThreshold = 10
     const scrollHeightAvailable = availableHeight - layoutHeight
 
-
     if (availableHeight < heightThreshold) {
       return null
     }

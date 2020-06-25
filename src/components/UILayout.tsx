@@ -3,9 +3,10 @@ import { View } from 'react-native'
 import Header from './ui/Header'
 import Theme from './Theme'
 import Toolbar from './ui/Toolbar'
-import LayersToolbar from './ui/LayersPanel/LayersToolbar'
-import { LayersPanel, LayersThumbnailsPanel } from './ui/LayersPanel'
+import LayersToolbar from './ui/LayersPanel2/LayersToolbar'
+import { LayersPanel2 } from './ui/LayersPanel2'
 import { Events } from '../core/events';
+import { LayersThumbnailsPanel, LayersThumbnailsPanelAnimated } from './ui/LayersThumbnailsPanel';
 
 
 const UILayout = () => {
@@ -21,8 +22,9 @@ const UILayout = () => {
     <Toolbar />
     <LayersToolbar />
 
-    <LayersThumbnailsPanel />
-    <LayersPanel />
+    <LayersPanel2 />
+
+    <LayersThumbnailsPanelAnimated />
 
     {/*
     

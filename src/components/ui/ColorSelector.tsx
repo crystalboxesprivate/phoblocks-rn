@@ -39,7 +39,9 @@ const ColorSelector = () => {
   const highlightedColor = '#427EE3'
   const strokeColor = '#5A5A5A'
 
-  const { primary, secondary } = useSelector((state: PhoblocksState) => state.color)
+
+  const primary = useSelector((state: PhoblocksState) => state.color.primary)
+  const secondary = useSelector((state: PhoblocksState) => state.color.secondary)
 
   const backgroundColor = `#${convert.hsv.hex(secondary)}`
   const foregroundColor = `#${convert.hsv.hex(primary)}`
@@ -87,7 +89,6 @@ const ColorSelector = () => {
             </Tooltip>
           </View>
 
-
           <Tooltip visible={clicked === ClickedState.Secondary} {...tooltipProps}
             content={() => (<ColorPicker color={secondary} setColor={setSecondary} />)}>
             <TouchableWithoutFeedback onPress={() => setClicked(clicked != ClickedState.Secondary ? ClickedState.Secondary : ClickedState.None)} >
@@ -98,7 +99,7 @@ const ColorSelector = () => {
           </Tooltip>
         </View>
       </View>
-    </View >
+    </View>
   )
 }
 

@@ -3,6 +3,7 @@ import { View, StyleSheet, Text, LayoutChangeEvent, Animated, GestureResponderEv
 import Svg, { Circle, Path } from 'react-native-svg'
 import Theme from '../Theme'
 import { Events } from '../../core/events'
+import { overlayLog } from '../DebugOverlay'
 
 const circleRadius = 9
 const circleMargin = 4
@@ -85,7 +86,6 @@ class Slider extends React.Component<SliderProps, { sliderWidth: number, value: 
       let posx = (e.nativeEvent.pageX - this.bounds.x) / this.state.sliderWidth
       return posx < 0 ? 0 : posx > 1 ? 1 : posx
     }
-
 
     return (<View
       onStartShouldSetResponder={_ => true}

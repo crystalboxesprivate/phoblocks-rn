@@ -53,6 +53,7 @@ export const DA_ADD_LAYER = 'DA_ADD_LAYER'
 export const DA_PARENT_LAYER = 'DA_PARENT_LAYER'
 export const DA_SET_MASK_EDITING = 'DA_SET_MASK_EDITING'
 export const DA_SET_SELECTED_LAYER = 'DA_SET_SELECTED_LAYER'
+export const DA_BUMP_HIERARCHY_CHANGE_ID = 'DA_BUMP_HIERARCHY_CHANGE_ID'
 
 export const DocumentActionType = [
   DA_NONE,
@@ -63,7 +64,8 @@ export const DocumentActionType = [
   DA_ADD_LAYER,
   DA_PARENT_LAYER,
   DA_SET_MASK_EDITING,
-  DA_SET_SELECTED_LAYER
+  DA_SET_SELECTED_LAYER,
+  DA_BUMP_HIERARCHY_CHANGE_ID
 ]
 
 // const activeLayer = (state = 0, action: any) =>
@@ -196,6 +198,8 @@ const layersRegistry = (state: LayersRegistry = { docChildren: [], activeLayer: 
           }
         }
         return { ...state, entries, docChildren: children, hierarchyChangeId: state.hierarchyChangeId + 1, }
+      case DA_BUMP_HIERARCHY_CHANGE_ID:
+        return { ...state, hierarchyChangeId: state.hierarchyChangeId + 1, }
       default:
         return state
     }
@@ -212,7 +216,8 @@ export const DocumentActions = {
     ({ type: DA_ADD_LAYER, layerType, parent, previousLayer }),
   parentLayer: (layerId: number, parentId: number, listPosition?: number) => ({ type: DA_PARENT_LAYER, layerId, parentId, listPosition }),
   setWidthHeight: (width: number, height: number) =>
-    ({ type: DA_SET_IMAGE_RESOLUTION, width: width, height: height })
+    ({ type: DA_SET_IMAGE_RESOLUTION, width: width, height: height }),
+  bumpHierarchyChangeId: () => ({ type: DA_BUMP_HIERARCHY_CHANGE_ID })
 }
 
 export const document = combineReducers({
