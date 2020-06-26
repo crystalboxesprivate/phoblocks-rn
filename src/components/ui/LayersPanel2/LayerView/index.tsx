@@ -4,7 +4,7 @@ import { View, PanResponder, GestureResponderEvent } from 'react-native'
 import Theme from '../../../Theme'
 import { useSelector, useDispatch } from 'react-redux'
 import { PhoblocksState } from '../../../../core/application/redux'
-import { LayerViewTitle, ControlSideIcons, PreviewBox, EyeButton, PanResponderHandlers } from './Elements'
+import { LayerViewTitle, ControlSideIcons, PreviewBox, EyeButton, PanResponderHandlers, TouchState, holdDelay } from './Elements'
 import { styles } from './LayerViewStyles'
 import { DocumentActions } from '../../../../core/application/redux/document'
 import { createSelector } from 'reselect'
@@ -47,22 +47,29 @@ const LayerView = ({ id, level }: LayerViewProps) => {
     setMaskEditing(false)
   }
 
-  const touchState = useRef({ isDown: false, dragging: false }).current
+  const touchState: TouchState = useRef({ isDown: false, dragging: false, holding: false, timeOut: -1 }).current
 
   const handlerEvents: PanResponderHandlers = {
     onPanResponderGrant: (e: GestureResponderEvent) => {
       touchState.isDown = true
       touchState.dragging = false
+      touchState.holding = false
+      touchState.timeOut = setTimeout(() => touchState.holding = true, holdDelay)
     },
 
     onPanResponderMove: (e: GestureResponderEvent) => {
-      touchState.dragging = true
+      if (touchState.isDown) {
+        touchState.dragging = true
+        clearTimeout(touchState.timeOut)
+      }
     },
     onPanResponderRelease: (e: GestureResponderEvent) => {
-      if (!touchState.dragging) {
+      if (!touchState.dragging && !touchState.holding) {
         onPreviewBox()
       }
+      // console.log({ d: touchState.dragging, h: touchState.holding })
       touchState.dragging = false
+      touchState.holding = false
       touchState.isDown = false
     },
   }
