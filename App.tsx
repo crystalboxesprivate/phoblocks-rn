@@ -1,9 +1,9 @@
-import React from 'react';
-import { View, Platform, StatusBar } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Platform, StatusBar, StyleSheet, } from 'react-native';
 import { DebugOverlay, overlayLog } from './src/components/DebugOverlay';
 import TouchEventLoader from './src/components/TouchEventLoader'
 import { Events, initializeEvents } from './src/core/events';
-import RenderView from './src/components/RenderView';
+import RenderView from './src/components/Renderer/RenderView';
 import Theme from './src/components/Theme';
 import UILayout from './src/components/UILayout'
 
@@ -11,54 +11,50 @@ import { Provider } from 'react-redux'
 import { Combined } from './src/core/application/redux/index'
 import { createStore } from 'redux';
 import { DocumentActions } from './src/core/application/redux/document';
-import { ViewerAction } from './src/core/application/redux/viewer';
-import { LayerType, LayerActions, Layer } from './src/core/application/redux/layer';
+import { ViewportActions } from './src/core/application/redux/ui/viewport';
+import { LayerType, LayerActions } from './src/core/application/redux/layer';
 import { Config } from './src/config';
 import { FloatingPanelManager } from './src/components/ui/FloatingPanel';
 import { UIAction } from './src/core/application/redux/ui';
+import { Viewport } from './src/components/Renderer/Viewport';
 
 
-class Phoblocks extends React.Component<{}, {}> {
-  componentDidMount() {
-    Events.addListener('touchstart', (e: any) => {
-      overlayLog(JSON.stringify(e))
-    })
-
-    if (Platform.OS === 'web') {
-      window.addEventListener('resize', () => {
-        Events.invoke('resize')
-        this.forceUpdate()
-      })
-    }
+const Phoblocks = () => {
+  useEffect(() => {
 
     if (!Config.statusBarVisible) {
       StatusBar.setHidden(true, 'slide')
     }
-  }
+    return () => {
+      Events.removeListener('touchstart', (e: any) => {
+        overlayLog(JSON.stringify(e))
+      })
+    }
+  })
 
-  render() {
-    return (
-      <View style={{
-        backgroundColor: Theme.bgColor,
-        flex: 1,
-        ...(
-          Platform.OS === 'web' ? { overflow: 'hidden' } : {}
-        )
-      }}>
-        <FloatingPanelManager />
-        <DebugOverlay />
+  return (
+    <View style={styles.main}>
+      <FloatingPanelManager />
+      <DebugOverlay />
+      <Viewport>
         <RenderView />
-        <TouchEventLoader style={{ zIndex: 2 }} />
-        <UILayout />
-        {/*
-        
-        
-        
-        */}
-      </View>
+      </Viewport>
+      <TouchEventLoader style={{ zIndex: 2 }} />
+      <UILayout />
+    </View>
+  )
+}
+
+const styles = StyleSheet.create({
+  main: {
+    backgroundColor: Theme.bgColor,
+    flex: 1,
+    ...(
+      Platform.OS === 'web' ? { overflow: 'hidden' } : {}
     )
   }
-}
+})
+
 
 export default function App() {
   initializeEvents()
@@ -71,7 +67,7 @@ export default function App() {
   }
   // initialize the state here
   store.dispatch(DocumentActions.setName('Untitled'))
-  store.dispatch(ViewerAction.setZoom(1.05))
+  store.dispatch(ViewportActions.setZoom(1.05))
 
   const l = makeLayer(LayerType.LAYER)
   store.dispatch(LayerActions.setName(l, 'my layer'))

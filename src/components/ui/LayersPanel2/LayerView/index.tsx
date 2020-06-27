@@ -1,6 +1,6 @@
-import React, { useRef } from 'react'
+import React, { useRef, useEffect } from 'react'
 import { LayerType, LayerActions, Layer } from '../../../../core/application/redux/layer'
-import { View, PanResponder, GestureResponderEvent } from 'react-native'
+import { View, PanResponder, GestureResponderEvent, Animated } from 'react-native'
 import Theme from '../../../Theme'
 import { useSelector, useDispatch } from 'react-redux'
 import { PhoblocksState } from '../../../../core/application/redux'
@@ -12,6 +12,8 @@ import { createSelector } from 'reselect'
 type LayerViewProps = {
   id: number
   level: number
+  itemHeight: number
+  isVisiallyClosed: boolean
 }
 
 const layerDataSelector = (state: PhoblocksState, props: any) => state.document.layersRegistry.entries[props.id]
@@ -25,10 +27,15 @@ const getCurrentLayer = createSelector([layerDataSelector], (layer: Layer) => ({
   visible: layer.visible
 }))
 
-const LayerView = ({ id, level }: LayerViewProps) => {
+const LayerView = ({ id, level, itemHeight, isVisiallyClosed }: LayerViewProps) => {
   const selected = useSelector((state: PhoblocksState) => id == state.document.layersRegistry.activeLayer)
   const layer = useSelector((state: PhoblocksState) => getCurrentLayer(state, { id, level }))
   const maskEditing = useSelector((state: PhoblocksState) => state.document.maskEditing)
+  const closeAnimation = useRef(new Animated.Value(isVisiallyClosed ? 0 : 1)).current
+
+  useEffect(() => {
+    Animated.timing(closeAnimation, { toValue: isVisiallyClosed ? 0 : 1, duration: 200 }).start()
+  }, [isVisiallyClosed])
 
   const dispatch = useDispatch()
   const toggleGroupClosed = () => {
@@ -67,7 +74,6 @@ const LayerView = ({ id, level }: LayerViewProps) => {
       if (!touchState.dragging && !touchState.holding) {
         onPreviewBox()
       }
-      // console.log({ d: touchState.dragging, h: touchState.holding })
       touchState.dragging = false
       touchState.holding = false
       touchState.isDown = false
@@ -80,9 +86,14 @@ const LayerView = ({ id, level }: LayerViewProps) => {
     ...handlerEvents
   })).current
 
-  const addStyle = { backgroundColor: selected ? Theme.selectedLayer : Theme.panelColor }
+  const addStyle = {
+    backgroundColor: selected ? Theme.selectedLayer : Theme.panelColor,
+    marginTop: closeAnimation.interpolate({ inputRange: [0, 1], outputRange: [-itemHeight, 0] }),
+    opacity: closeAnimation,
+    zIndex: closeAnimation.interpolate({ inputRange: [0, 0.01], outputRange: [-1, 2], extrapolate: 'clamp' })
+  }
   return (
-    <View {...panResponder.panHandlers} style={[addStyle, styles.layerViewContainer]}>
+    <Animated.View {...panResponder.panHandlers} style={[addStyle, styles.layerViewContainer]}>
       <View style={[styles.layerInnerContainer, { marginLeft: 16 * level }]}>
         <ControlSideIcons
           isGroup={layer.type === LayerType.GROUP}
@@ -109,7 +120,7 @@ const LayerView = ({ id, level }: LayerViewProps) => {
         panResponderHandlers={handlerEvents}
         onPress={toggleLayerVisible}
         visible={layer.visible} />
-    </View>
+    </Animated.View>
   )
 }
 

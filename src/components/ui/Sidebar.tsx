@@ -1,6 +1,6 @@
 import React from 'react'
 import Theme from '../Theme'
-import { View } from 'react-native'
+import { View, StyleProp, ViewStyle } from 'react-native'
 
 const Sidebar = ({ children, alignment, style }: { children: JSX.Element[] | JSX.Element, alignment?: string, style?: any }) => {
   const align = alignment === 'right' ? { left: Theme.getFullWidth() - Theme.sidebarWidth } : { left: 0 }
@@ -29,14 +29,18 @@ const Sidebar = ({ children, alignment, style }: { children: JSX.Element[] | JSX
   </View>
 }
 
-const ToolGroup = ({ children, style }: { children: JSX.Element[], style?: object }) => {
+type ToolGroupProps = {
+  children: JSX.Element | JSX.Element[]
+  style?: StyleProp<ViewStyle>
+}
+
+const ToolGroup = ({ children, style }: ToolGroupProps) => {
   return (
-    <View style={{
+    <View style={[{
       flex: 1,
       alignItems: 'center',
-      flexDirection: 'column',
-      ...style
-    }}>
+      flexDirection: 'column'
+    }, style]}>
       {children}
     </View>
   )

@@ -4,7 +4,7 @@ import Icon from '../Icon'
 import Theme from '../Theme'
 import { connect } from 'react-redux'
 import { PhoblocksState } from '../../core/application/redux'
-import { ViewerAction } from '../../core/application/redux/viewer'
+import { ViewportActions } from '../../core/application/redux/ui/viewport'
 import { overlayLog } from '../DebugOverlay'
 
 const HeaderButton = ({ name }: { name: string }) => (
@@ -76,8 +76,8 @@ class DocumentScale_ extends React.Component<DocumentScaleProps, {}> {
 
 
 const DocumentScale = connect((state: PhoblocksState) => ({
-  scale: state.viewer.scale
-}), { setScale: ViewerAction.setZoom })(DocumentScale_)
+  scale: state.ui.viewport.scale
+}), { setScale: ViewportActions.setZoom })(DocumentScale_)
 const DocTitle_ = ({ title, }: {
   title: string,
 }) => (<View style={{
@@ -93,8 +93,8 @@ const DocTitle_ = ({ title, }: {
 
 const DocTitle = connect((state: PhoblocksState) => ({
   title: state.document.name,
-  scale: state.viewer.scale
-}), { setScale: ViewerAction.setZoom })(DocTitle_)
+  scale: state.ui.viewport.scale
+}), { setScale: ViewportActions.setZoom })(DocTitle_)
 
 const headerStyle = {
   ...Theme.font

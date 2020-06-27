@@ -1,13 +1,25 @@
 import React from 'react';
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { WebView } from 'react-native-webview';
-import Theme from './Theme.js'
 import { overlayLog } from './DebugOverlay';
 import { Asset } from 'expo-asset';
-import FileSystem from 'expo-file-system'
 import { Events } from '../core/events';
-import { Platform, PlatformIOSStatic } from 'react-native'
+import { Platform } from 'react-native'
 
+type CustomTouch = {
+  pageX: number
+  pageY: number
+  force?: number
+}
+
+export type CustomTouchEvent = {
+  type: string
+  center?: { x: number, y: number }
+  scale?: number
+  rotation?: number
+  pointerType: string
+  touches?: CustomTouch[]
+}
 
 const getMarkdown = async () => {
   let file = Asset.fromModule(require(`../../assets/html/index.html`))
@@ -53,12 +65,11 @@ class TouchEventLoader extends React.Component<TouchEventLoaderProps, {}> {
           zIndex: 5
         }}
         onMessage={(event: any) => {
-          if (!this.initialized) {
-            return
-          }
-          const e = JSON.parse(event.nativeEvent.data)
-          if (e.touches.length > 0) {
-            if ('force' in e.touches[0] && e.touches[0].force > 0.0001) {
+          if (!this.initialized) { return }
+          const e = JSON.parse(event.nativeEvent.data) as CustomTouchEvent
+          if (e.touches && e.touches.length > 0) {
+            if (e.touches[0].force && e.touches[0].force > 0.0001) {
+              // @ts-ignore
               e.pointerType = Platform.isPad ? 'pen' : 'touch'
             }
           }
@@ -71,7 +82,34 @@ class TouchEventLoader extends React.Component<TouchEventLoaderProps, {}> {
   }
 
   render() {
-    return Platform.OS === 'web' ? null : this.webView
+    return Platform.OS === 'web' ? (
+      <View onStartShouldSetResponder={() => true}
+        onResponderGrant={(e) => {
+          const outEvent: CustomTouchEvent = { type: 'touchstart', pointerType: 'mouse', touches: [] }
+          for (let touch of e.nativeEvent.touches) {
+            if (outEvent.touches)
+              outEvent.touches.push({ pageX: touch.pageX, pageY: touch.pageY })
+          }
+          Events.invoke('touchstart', outEvent)
+        }}
+        onResponderMove={(e) => {
+          const outEvent: CustomTouchEvent = { type: 'touchmove', pointerType: 'mouse', touches: [] }
+          for (let touch of e.nativeEvent.touches) {
+            if (outEvent.touches)
+              outEvent.touches.push({ pageX: touch.pageX, pageY: touch.pageY })
+          }
+          Events.invoke('touchmove', outEvent)
+        }}
+        onResponderEnd={(e) => {
+          const outEvent: CustomTouchEvent = { type: 'touchend', pointerType: 'mouse', touches: [] }
+          for (let touch of e.nativeEvent.touches) {
+            if (outEvent.touches)
+              outEvent.touches.push({ pageX: touch.pageX, pageY: touch.pageY })
+          }
+          Events.invoke('touchend', outEvent)
+        }}
+        style={{ width: '100%', height: '100%' }}></View>
+    ) : this.webView
   }
 }
 

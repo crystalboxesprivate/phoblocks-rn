@@ -34,19 +34,14 @@ export const layersButtons = combineReducers({
   }
 })
 
-type LayersButtons = {
+export type LayersButtons = {
   layerPropertiesButton: boolean,
   layerListDisplayMode: LayerListDisplayMode,
   layerListSplitPosition: number,
 }
 
-export type UIState = {
-  layersButtons: LayersButtons
-}
 
-export const ui = combineReducers({ layersButtons, })
-
-export const UIAction = {
+export const LayerButtonsActions = {
   layersThumbnailsButton: () => ({ type: UI_LAYER_THUMBNAILS_BUTTON }),
   layersListButton: () => ({ type: UI_LAYERS_LIST_BUTTON }),
   layerPropertiesButton: () => ({ type: UI_LAYER_PROPERTIES_BUTTON }),

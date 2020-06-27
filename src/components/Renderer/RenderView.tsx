@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, Dimensions } from 'react-native';
 import { GLView } from 'expo-gl'
 
 import convert from 'color-convert'
-import Theme from './Theme';
+import Theme from '../Theme';
 
 const vertSrc = `
 void main(void) {

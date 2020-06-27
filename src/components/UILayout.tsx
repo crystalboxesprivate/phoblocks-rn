@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View } from 'react-native'
 import Header from './ui/Header'
 import Theme from './Theme'
-import Toolbar from './ui/Toolbar'
+import Toolbar from './ui/Tools/Toolbar'
 import LayersToolbar from './ui/LayersPanel2/LayersToolbar'
 import { LayersPanel2 } from './ui/LayersPanel2'
 import { Events } from '../core/events';
@@ -10,12 +10,9 @@ import { LayersThumbnailsPanel, LayersThumbnailsPanelAnimated } from './ui/Layer
 
 
 const UILayout = () => {
-
   return (<View style={{
     position: 'absolute',
     top: Theme.getStatusBarHeight(),
-    width: Theme.getFullWidth(),
-    height: Theme.getFullHeight(),
     left: 0,
   }}>
     <Header />

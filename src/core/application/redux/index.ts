@@ -1,14 +1,8 @@
 import { document, ColorMode, DocumentDimensions, LayersRegistry } from './document'
-import { viewer } from './viewer'
 import { color, ColorState } from './editor/color'
 import { combineReducers, } from 'redux'
 import { UIState, ui } from './ui'
-
-type ViewerState = {
-  position: [number, number],
-  rotation: number,
-  scale: number
-}
+import { ToolState, tool } from './tool'
 
 type DocumentState = {
   closed: boolean,
@@ -22,13 +16,13 @@ type DocumentState = {
 export type PhoblocksState = {
   color: ColorState
   document: DocumentState,
-  viewer: ViewerState,
   ui: UIState,
+  tool: ToolState
 }
 
 export const Combined = combineReducers({
   color,
   document,
-  viewer,
-  ui
+  ui,
+  tool
 })

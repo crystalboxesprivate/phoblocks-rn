@@ -19,12 +19,23 @@
 
 - [ ] Layers Panel v2
   - [x] Write panel display with Animations
+  - [x] fix ios measuring bug
+    - [x] move measuring logic into layer view itself
   - [ ] Layer List 2
-    - [ ] Layer view has a gesture responder instead of touchables
-      - [ ] catch positions by measuring where each block is placed
-      - [ ] catch hold gesture
-      - [ ] catch swipe gesture for layer deletion
+    - [x] Layer view has a gesture responder instead of touchables
+      - [x] catch positions by measuring where each block is placed
+      - [x] catch hold gesture
+      - [x] catch swipe gesture for layer deletion
       - [ ] layer reordering without Animations
+  - [ ] canvas with navigation
+    - [ ] clear
+      - [ ] render framebuffer
+      - [ ] draw framebuffer
+  - [ ] add brush tools
+    - [ ] tooltip for setting opacity and size
+
+  - [ ] overlay log is a draggable window
+    - [ ] make as a scrollview
 
 - [ ] Dropdown list: Fix global positioning by using the clicked mouse coordinates
       

@@ -5,7 +5,7 @@ import Svg, { Path } from 'react-native-svg'
 import { styles } from './LayerViewStyles'
 import Icon from '../../../Icon'
 
-const previewBoxSize = 32
+export const previewBoxSize = 32
 export const holdDelay = 300
 
 export type TouchState = {
@@ -26,7 +26,6 @@ const useTouchPanResponder = (panResponderHandlers: PanResponderHandlers, touchF
       touchState.holding = false
       touchState.timeOut = setTimeout(() => touchState.holding = true, holdDelay)
       panResponderHandlers.onPanResponderGrant(e)
-      console.log('child pan responder invoked')
     },
     onPanResponderMove: (e) => {
       if (touchState.isDown) {

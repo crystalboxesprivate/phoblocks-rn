@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react'
-import { View, Text, Animated } from 'react-native'
+import { View, Text, Animated, Platform } from 'react-native'
 import Svg, { Path } from 'react-native-svg'
 
 import { styles } from './Styling'
@@ -8,7 +8,9 @@ import LayerView from '../LayersPanel/LayerList/LayerView'
 import { Layer } from '../../../core/application/redux/layer'
 import { useSelector, useDispatch } from 'react-redux'
 import { PhoblocksState } from '../../../core/application/redux'
-import { LayerListDisplayMode, UIAction } from '../../../core/application/redux/ui'
+import { LayerListDisplayMode } from '../../../core/application/redux/ui/layerButtons'
+import { UIAction } from '../../../core/application/redux/ui'
+
 import Theme from '../../Theme'
 
 import { Styles } from '../Styles'
@@ -145,7 +147,8 @@ export const LayersPanel2 = () => {
       height: divisorAnimation.interpolate({ inputRange: [0, 1], outputRange: [0, layout.height] }),
       opacity: divisorAnimation.interpolate({ inputRange: [0, .01], outputRange: [0, 1], extrapolate: 'clamp' })
     }} >
-      <LayersList itemHeight={itemListLayout.height} />
+      {/* TODO fix the ios bug in getting the correct height  */}
+      <LayersList itemHeight={Platform.OS === 'ios' ? 44 : itemListLayout.height} />
     </Animated.View>
     <Animated.View style={{
       height: divisorAnimation.interpolate({

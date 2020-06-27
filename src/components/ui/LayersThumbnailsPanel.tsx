@@ -6,7 +6,7 @@ import { Layer, LayerType, LayerActions } from "../../core/application/redux/lay
 import Theme from '../Theme';
 import Svg, { Rect } from "react-native-svg"
 import { DocumentActions } from '../../core/application/redux/document';
-import { LayerListDisplayMode } from '../../core/application/redux/ui';
+import { LayerListDisplayMode } from '../../core/application/redux/ui/layerButtons';
 
 
 // get active layer

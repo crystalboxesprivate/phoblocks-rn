@@ -1,13 +1,16 @@
 import React from 'react'
-import Icon from '../Icon'
-import Theme from '../Theme'
-import { View } from 'react-native'
+import Icon from '../../Icon'
+import Theme from '../../Theme'
+import { View, ViewStyle, StyleProp } from 'react-native'
 import Svg, { Path } from "react-native-svg"
+
+// each tool id has a type
+
 
 type ToolIconProps = {
   name: string
   isActive?: boolean
-  style?: object
+  style?: StyleProp<ViewStyle>
   activeColor?: string
   hasOptions?: boolean
   iconFill?: string
