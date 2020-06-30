@@ -1,10 +1,10 @@
 import React, { useState, useRef } from 'react'
 import { ExpoWebGLRenderingContext, GLView } from 'expo-gl';
 
-import Graphics from '../../core/Graphics'
 import convert from 'color-convert'
-import { Color } from '../../core/Graphics/color'
-import Theme from '../Theme'
+import Graphics from '../../core/Graphics';
+import Theme from '../Theme';
+import { Color } from '../../core/Graphics/color';
 
 // this has 2 one component
 // two layers

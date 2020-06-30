@@ -46,7 +46,7 @@ export function useTouchEventHandler(onEvent: (e: CustomTouchEvent) => void) {
 export function useHtmlSource() {
   const [htmlSource, setHtmlSource] = useState('')
   const getMarkdown = async () => {
-    let file = Asset.fromModule(require(`../../../assets/html/index.html`))
+    let file = Asset.fromModule(require(`../../../../assets/html/index.html`))
     await file.downloadAsync()
     return Promise.resolve(await (await fetch(file.uri)).text())
   }

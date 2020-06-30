@@ -1,245 +1,161 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { View, Animated, Text } from 'react-native'
-import LayerProperties from './LayerProperties'
-import { PhoblocksState } from '../../../core/application/redux'
-import { LayersListAnimated } from './LayerList'
-import { LayersPanelStyles } from './LayersPanelStyles'
-import LayerView from './LayerList/LayerView'
+import React, { useRef, useEffect } from 'react'
+import { View, Text, Animated, Platform } from 'react-native'
+import Svg, { Path } from 'react-native-svg'
+
+import { styles } from './Styling'
+import { useLayout } from '../../Hooks'
 import { Layer } from '../../../core/application/redux/layer'
-import { connect, useDispatch, useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
+import { PhoblocksState } from '../../../core/application/redux'
 import { LayerListDisplayMode } from '../../../core/application/redux/ui/layerButtons'
 import { UIAction } from '../../../core/application/redux/ui'
-import { LayersThumbnailsPanelAnimated } from '../LayersThumbnailsPanel'
-import { Events } from '../../../core/events'
-import { useLayout } from '../../Hooks'
+
+import Theme from '../../Theme'
+
 import { Styles } from '../Styles'
+import { LayerProperties } from './LayerProperties'
+import { LayersList } from './LayersList'
 import { overlayLog } from '../../DebugOverlay'
 
-type LayersPanelProps = {
-  listVisible: boolean,
-  propertiesVisible: boolean,
-  divisor: number,
-  setDivisor: (amount: number) => {
-    type: string;
-    amount: number;
-  }
+type LayerDragTitleProps = {
+  totalHeight: number
+  listVisible: boolean
+  divisor: number
+  setDivisor: any
+  setDivisorCommit: any
+  canDrag: boolean
 }
 
-const LayersPanelMeasureBlock = ({ onLayout, onTitleLayout, onItemListLayout }: { onLayout: any, onTitleLayout: any, onItemListLayout: any }) => {
-  return (<View style={LayersPanelStyles.container} onLayout={onLayout}>
-    <View style={LayersPanelStyles.layersList} onLayout={onTitleLayout}>
-      <Text style={LayersPanelStyles.layersListTitle}>Layers</Text>
+const LayerDragTitle = ({ totalHeight, canDrag, listVisible, divisor, setDivisor, setDivisorCommit }: LayerDragTitleProps) => {
+  const opacityAnim = useRef(new Animated.Value(listVisible ? 1 : 0)).current
+  useEffect(() => {
+    Animated.timing(opacityAnim, { toValue: listVisible ? 1 : 0, duration: 100, useNativeDriver: false }).start()
+  })
+  const divisorStart = useRef({ divisor, posY: 0, down: false }).current
+  return (
+    <View
+      style={{ backgroundColor: Theme.panelColor }}
+      onStartShouldSetResponder={_ => true}
+      onResponderGrant={e => {
+        if (!canDrag) { return }
+        divisorStart.down = true
+        divisorStart.divisor = divisor
+        divisorStart.posY = e.nativeEvent.pageY
+      }}
+      onResponderMove={e => {
+        if (!divisorStart.down) { return }
+        setDivisor(divisorStart.divisor +
+          (e.nativeEvent.pageY - divisorStart.posY) / totalHeight)
+      }}
+      onResponderRelease={e => {
+        setDivisorCommit(divisorStart.divisor +
+          (e.nativeEvent.pageY - divisorStart.posY) / totalHeight)
+        divisorStart.down = false
+      }}>
+      <View style={styles.layerDragTitle}>
+        <Animated.View style={{ opacity: opacityAnim }}>
+          <Svg width={30} height={4} viewBox="0 0 30 4" fill="none">
+            <Path
+              fillRule="evenodd"
+              clipRule="evenodd"
+              d="M0 2a2 2 0 012-2h26a2 2 0 110 4H2a2 2 0 01-2-2z"
+              fill="#6E6E6E"
+            />
+          </Svg>
+        </Animated.View>
+      </View>
+      <Text style={[{ marginLeft: 15 }, Styles.font16]}>Layer Properties</Text>
     </View>
-    <View style={LayersPanelStyles.layersList}>
-      <Text style={LayersPanelStyles.layersListTitle}>Layers</Text>
+  )
+}
+
+type LayersPanelMeasureBlockProps = {
+  onLayout: any,
+  onTitleLayout: any,
+  onItemListLayout: any
+}
+
+const LayersPanelMeasureBlock = ({ onLayout, onTitleLayout, onItemListLayout }: LayersPanelMeasureBlockProps) => {
+  return (<View style={[styles.layersPanel, { top: 2000 }]} onLayout={onLayout}>
+    <View style={styles.layersList} onLayout={onTitleLayout}>
+      <Text style={styles.layersListTitle}>Layers</Text>
+    </View>
+    <View style={styles.layersList}>
+      <Text style={styles.layersListTitle}>Layers</Text>
       <View onLayout={onItemListLayout}>
-        <LayerView layer={new Layer()} level={0} />
       </View>
     </View>
   </View>)
 }
 
-const useDivisor = (totalHeight: number): [Animated.Value, number] => {
-  const dispatch = useDispatch()
-  const setDivisor = (amount: number) => dispatch(UIAction.setLayerListSplitPosition(amount))
-
-  const divisor = useSelector((state: PhoblocksState) => state.ui.layersButtons.layerListSplitPosition)
-
-  const propsHeightAnim = useRef(new Animated.Value(0)).current
-
-  let div = -1
-  const onTitleDragStart = () => { div = divisor }
-  const onTitleDragMove = (e: any) => { propsHeightAnim.setValue(div + e / totalHeight) }
-  const onTitleDragRelease = (e: any) => { setDivisor(div + e / totalHeight) }
-
-  useEffect(() => {
-    Events.addListener('LayerDragTitleStart', onTitleDragStart)
-    Events.addListener('LayerDragTitleMove', onTitleDragMove)
-    Events.addListener('LayerDragTitleEnd', onTitleDragRelease)
-
-    return () => {
-      Events.removeListener('LayerDragTitleStart', onTitleDragStart)
-      Events.removeListener('LayerDragTitleMove', onTitleDragMove)
-      Events.removeListener('LayerDragTitleEnd', onTitleDragRelease)
-    }
-  })
-
-  return [propsHeightAnim, divisor]
-}
-
-export const LayersPanel = () => {
+export const LayersPanel2 = () => {
   const [layout, onLayout] = useLayout()
   const [titleLayout, onTitleLayout] = useLayout()
   const [itemListLayout, onItemListLayout] = useLayout()
-  const [propsHeightAnim, divisor] = useDivisor(layout?.height || 1)
 
-  const { listVisible, propertiesVisible } = useSelector((state: PhoblocksState) => ({
-    listVisible: state.ui.layersButtons.layerListDisplayMode === LayerListDisplayMode.List,
-    propertiesVisible: state.ui.layersButtons.layerPropertiesButton,
-  }))
-  const isVisible = listVisible || propertiesVisible
-  const opacityAnim = useRef(new Animated.Value(isVisible ? 0 : 1)).current
+  const divisor = useSelector((state: PhoblocksState) => state.ui.layersButtons.layerListSplitPosition)
+  const dispatch = useDispatch()
+
+  const propertiesVisible = useSelector((state: PhoblocksState) => state.ui.layersButtons.layerPropertiesButton)
+  const listVisible = useSelector((state: PhoblocksState) => state.ui.layersButtons.layerListDisplayMode === LayerListDisplayMode.List)
+
+  const isVisible = propertiesVisible || listVisible
+  const visibilityAnimation = useRef(new Animated.Value(isVisible ? 1 : 0)).current
+  const previousVisibilityState = useRef({ isVisible, listVisible, propertiesVisible }).current
+
+  const getDivisorToValue = () => (listVisible
+    ? propertiesVisible
+      ? divisor
+      : 1
+    : 0)
+  const divisorAnimation = useRef(new Animated.Value(getDivisorToValue())).current
+  const setDivisorCommit = (amount: number) => dispatch(UIAction.setLayerListSplitPosition(amount))
+  const setDivisor = (amount: number) => divisorAnimation.setValue(amount)
+  const canDrag = listVisible
 
   useEffect(() => {
-    Animated.timing(opacityAnim, {
-      toValue: isVisible ? 1 : 0,
-      duration: 200
-    }).start()
+    const visiblityToValue = isVisible ? 1 : 0
+    if (previousVisibilityState.listVisible && !previousVisibilityState.propertiesVisible && !listVisible && !propertiesVisible) {
+    } else {
+      Animated.timing(divisorAnimation, { toValue: getDivisorToValue(), duration: 200, useNativeDriver: false }).start()
+    }
+    Animated.timing(visibilityAnimation, { toValue: visiblityToValue, duration: 200, useNativeDriver: false }).start()
 
-    const toValue = propertiesVisible
-      ? listVisible
-        ? divisor
-        : 0
-      : listVisible
-        ? 1
-        : 0
-    Animated.timing(propsHeightAnim, {
-      toValue,
-      duration: 300
-    }).start()
-
+    previousVisibilityState.isVisible = isVisible
+    previousVisibilityState.listVisible = listVisible
+    previousVisibilityState.propertiesVisible = propertiesVisible
   })
 
   if (!layout || !titleLayout || !itemListLayout) {
-    return <LayersPanelMeasureBlock {...{ onLayout, onTitleLayout, onItemListLayout }} />
+    return <LayersPanelMeasureBlock {...{
+      onLayout,
+      onTitleLayout,
+      onItemListLayout
+    }} />
   }
 
-  if (!isVisible) {
-    return null
-  }
-  return (
-    <Animated.View style={{ opacity: opacityAnim }}>
-      <View style={LayersPanelStyles.container} >
-        <LayersListAnimated
-          listHeight={itemListLayout.height}
-          layoutHeight={layout.height}
-          availableHeight={layout.height
-            // propsHeightAnim.interpolate(
-            // { inputRange: [0, 1], outputRange: [0, layout.height] })
-          } />
-        {propertiesVisible ? <LayerProperties /> : null}
-      </View>
-    </Animated.View>
-  )
-}
-
-
-export const LayersPanel2 = connect((state: PhoblocksState) => ({
-  listVisible: state.ui.layersButtons.layerListDisplayMode === LayerListDisplayMode.List,
-  propertiesVisible: state.ui.layersButtons.layerPropertiesButton,
-  divisor: state.ui.layersButtons.layerListSplitPosition
-}), {
-  setDivisor: UIAction.setLayerListSplitPosition
-})(
-  ({ listVisible, propertiesVisible, divisor, setDivisor }: LayersPanelProps) => {
-    const [measures, setMeasures] = useState({ layoutHeight: 0, layersTitleHeight: 0, scrollListHeight: 0 })
-    const [layoutMeasured, setLayoutMeasured] = useState(false)
-    const layoutContainer: any = useRef(null)
-    const titleContainer: any = useRef(null)
-    const listItemContainer: any = useRef(null)
-
-    const isVisible = listVisible || propertiesVisible
-    const opacityAnim = useRef(new Animated.Value(isVisible ? 0 : 1)).current
-    const propsHeightAnim = useRef(new Animated.Value(0)).current
-
-    let div = 0
-    const onTitleDragStart = () => {
-      div = divisor
-    }
-    const onTitleDragMove = (e: any) => {
-      propsHeightAnim.setValue(div + e / measures.layoutHeight)
-    }
-    const onTitleDragRelease = (e: any) => { setDivisor(div + e / measures.layoutHeight) }
-
-    const cleanup = () => {
-      Events.removeListener('LayerDragTitleStart', onTitleDragStart)
-      Events.removeListener('LayerDragTitleMove', onTitleDragMove)
-      Events.removeListener('LayerDragTitleEnd', onTitleDragRelease)
-    }
-
-    useEffect(() => {
-      if (!layoutMeasured) {
-        return
-      }
-      const newMeasures = { ...measures }
-      setMeasures(newMeasures)
-    }, [layoutMeasured])
-
-    useEffect(() => {
-      Events.addListener('LayerDragTitleStart', onTitleDragStart)
-      Events.addListener('LayerDragTitleMove', onTitleDragMove)
-      Events.addListener('LayerDragTitleEnd', onTitleDragRelease)
-
-      Animated.timing(opacityAnim, {
-        toValue: isVisible ? 1 : 0,
-        duration: 200
-      }).start()
-
-      const toValue = propertiesVisible
-        ? listVisible
-          ? divisor
-          : 0
-        : listVisible
-          ? 1
-          : 0
-      Animated.timing(propsHeightAnim, {
-        toValue,
-        duration: 300
-      }).start()
-
-      return cleanup
+  const panelTop = Theme.headerHeight + Theme.getStatusBarHeight()
+  return (<Animated.View style={[styles.layersPanel, {
+    opacity: visibilityAnimation, top: visibilityAnimation.interpolate({
+      inputRange: [0, .01], outputRange: [panelTop + layout.height, panelTop],
+      extrapolate: 'clamp'
     })
-
-
-    if (!layoutMeasured) {
-      return (<View style={[LayersPanelStyles.container, { opacity: 0 }]} ref={layoutContainer}
-        onLayout={(e) => {
-          measures.layoutHeight = e.nativeEvent.layout.height
-          setLayoutMeasured(true)
-        }}
-      >
-        <View
-          style={[LayersPanelStyles.layersList]}
-          ref={titleContainer}
-          onLayout={(e) => {
-            measures.layersTitleHeight = e.nativeEvent.layout.height
-          }}
-        >
-          <Text style={LayersPanelStyles.layersListTitle}>Layers</Text>
-        </View>
-        <View style={[LayersPanelStyles.layersList]} >
-          <Text style={LayersPanelStyles.layersListTitle}>Layers</Text>
-          <View ref={listItemContainer}
-            onLayout={(e) => {
-              measures.scrollListHeight = e.nativeEvent.layout.height
-            }}
-          >
-            <LayerView
-              layer={new Layer()}
-              level={0}
-            />
-          </View>
-        </View>
-      </View >)
-    }
-
-
-    const isHidden = (opacityAnim as unknown as number) < 0.001
-
-    return (
-      <Animated.View style={{ opacity: opacityAnim }}>
-        <View style={isHidden ? {} : LayersPanelStyles.container} >
-          <LayersListAnimated
-            listHeight={measures.scrollListHeight}
-            layoutHeight={measures.layoutHeight}
-            availableHeight={propsHeightAnim.interpolate(
-              { inputRange: [0, 1], outputRange: [0, measures.layoutHeight] }
-            )} />
-          {propertiesVisible ? <LayerProperties /> : null}
-        </View>
-      </Animated.View>
-    )
-  }
-)
-
-export const LayersThumbnailsPanel = LayersThumbnailsPanelAnimated
+  }]}>
+    <Animated.View style={{
+      height: divisorAnimation.interpolate({ inputRange: [0, 1], outputRange: [0, layout.height] }),
+      opacity: divisorAnimation.interpolate({ inputRange: [0, .01], outputRange: [0, 1], extrapolate: 'clamp' })
+    }} >
+      {/* TODO fix the ios bug in getting the correct height  */}
+      <LayersList itemHeight={44} />
+    </Animated.View>
+    <Animated.View style={{
+      height: divisorAnimation.interpolate({
+        inputRange: [0, 1],
+        outputRange: [layout.height, 0]
+      })
+    }}>
+      <LayerDragTitle {...{ divisor, setDivisor, setDivisorCommit, totalHeight: layout.height, listVisible, canDrag }} />
+      <LayerProperties />
+    </Animated.View>
+  </Animated.View>)
+}

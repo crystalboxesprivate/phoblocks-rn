@@ -1,24 +1,24 @@
+import { useSelector, useDispatch } from 'react-redux'
+import { PhoblocksState } from '../../core/application/redux'
+import { ViewportActions } from '../../core/application/redux/ui/viewport'
 import { useState } from 'react'
-import { useSelector, useDispatch } from "react-redux"
-import { PhoblocksState } from "../../core/application/redux"
-import { ViewportActions } from "../../core/application/redux/ui/viewport"
+import { ViewTransform } from './hooks'
 
-export const useViewportState = (): [[number, number], number, number, any, any, any] => {
-  const [position, setPosition] = useState([0, 0])
+export const usePSR = (): ViewTransform => {
+  const [position, setPosition] = useState([200, 200] as [number, number])
   const [scale, setScale] = useState(1)
   const [rotation, setRotation] = useState(0)
-
-  return [position as [number, number], scale, rotation, (x: number, y: number) => setPosition([x, y]), setScale, setRotation]
+  return [position, scale, rotation, setPosition, setScale, setRotation]
 }
 
-export const useViewportState2 = (): [[number, number], number, number, any, any, any] => {
+export const usePSR2 = (): [[number, number], number, number, any, any, any] => {
   const position = useSelector((state: PhoblocksState) => state.ui.viewport.position)
   const scale = useSelector((state: PhoblocksState) => state.ui.viewport.scale)
   const rotation = useSelector((state: PhoblocksState) => state.ui.viewport.rotation)
   const dispatch = useDispatch()
 
 
-  const setPosition = (x: number, y: number) => dispatch(ViewportActions.setPosition([x, y]))
+  const setPosition = (position: [number, number]) => dispatch(ViewportActions.setPosition(position))
   const setScale = (scale: number) => dispatch(ViewportActions.setZoom(scale))
   const setRotation = (rot: number) => dispatch(ViewportActions.setRotation(rot))
   return [position, scale, rotation, setPosition, setScale, setRotation]
