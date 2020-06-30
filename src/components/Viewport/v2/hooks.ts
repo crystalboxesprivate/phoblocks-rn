@@ -3,15 +3,9 @@ import { View, Text, StyleSheet, Dimensions, PanResponder, PanResponderInstance,
 
 import { mat2d, vec2 } from 'gl-matrix'
 
-type ViewTransform = [[number, number], number, number, (pos: [number, number]) => void,
+export type ViewTransform = [[number, number], number, number, (pos: [number, number]) => void,
   (scale: number) => void, (rotation: number) => void]
 
-export const usePSR = (): ViewTransform => {
-  const [position, setPosition] = useState([200, 200] as [number, number])
-  const [scale, setScale] = useState(1)
-  const [rotation, setRotation] = useState(0)
-  return [position, scale, rotation, setPosition, setScale, setRotation]
-}
 
 type Vec2D = [number, number]
 type Vector2D = { x: number, y: number }
@@ -71,7 +65,7 @@ export const useGesture = (): [Gesture, () => void, (event: GestureResponderEven
   }
 
   const initGesture = (event: GestureResponderEvent) => {
-    if (!gesture.active && event.nativeEvent.touches.length == 2) {
+    if (!gesture.active && event.nativeEvent.touches.length >= 2) {
       gesture.scale = 1.0
       gesture.rotation = 0
       gesture.active = true
@@ -88,7 +82,7 @@ export const useGesture = (): [Gesture, () => void, (event: GestureResponderEven
   }
 
   const updateGesture = (event: GestureResponderEvent) => {
-    if (event.nativeEvent.touches.length != 2) {
+    if (event.nativeEvent.touches.length < 2) {
       gesture.active = false
     } else {
       gesture.rotation = getAngleBetween(sub(gesture._startA, gesture._startB), sub(
@@ -134,9 +128,11 @@ export const useNavigationResponder = (viewTransform: ViewTransform): any => {
     if (!event.nativeEvent.touches) {
       return [0, 0]
     }
-    for (let t of event.nativeEvent.touches) {
-      x += t.pageX
-      y += t.pageY
+
+    for (let t = 0; t < 2; t++) {
+      if (t >= event.nativeEvent.touches.length) { continue }
+      x += event.nativeEvent.touches[t].pageX
+      y += event.nativeEvent.touches[t].pageY
     }
 
     x /= event.nativeEvent.touches.length

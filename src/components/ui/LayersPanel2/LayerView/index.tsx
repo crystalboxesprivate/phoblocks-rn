@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react'
-import { LayerType, LayerActions, Layer } from '../../../../core/application/redux/layer'
+import { LayerType, LayerActions, Layer, LayerMask } from '../../../../core/application/redux/layer'
 import { View, PanResponder, GestureResponderEvent, Animated } from 'react-native'
 import Theme from '../../../Theme'
 import { useSelector, useDispatch } from 'react-redux'
@@ -27,11 +27,37 @@ const getCurrentLayer = createSelector([layerDataSelector], (layer: Layer) => ({
   visible: layer.visible
 }))
 
+const useLayer = (id: number): [LayerType, string, boolean, boolean, LayerMask | null, boolean] => {
+  const type = useSelector((state: PhoblocksState) => state.document.layersRegistry.entries[id].type)
+  const name = useSelector((state: PhoblocksState) => state.document.layersRegistry.entries[id].name)
+  const clippingMask = useSelector((state: PhoblocksState) => state.document.layersRegistry.entries[id].clippingMask)
+  const closed = useSelector((state: PhoblocksState) => state.document.layersRegistry.entries[id].closed)
+  const mask = useSelector((state: PhoblocksState) => state.document.layersRegistry.entries[id].mask)
+  const visible = useSelector((state: PhoblocksState) => state.document.layersRegistry.entries[id].visible)
+  return [
+    type,
+    name,
+    clippingMask,
+    closed,
+    mask,
+    visible,
+  ]
+}
+
 const LayerView = ({ id, level, itemHeight, isVisiallyClosed }: LayerViewProps) => {
   const selected = useSelector((state: PhoblocksState) => id == state.document.layersRegistry.activeLayer)
-  const layer = useSelector((state: PhoblocksState) => getCurrentLayer(state, { id, level }))
   const maskEditing = useSelector((state: PhoblocksState) => state.document.maskEditing)
   const closeAnimation = useRef(new Animated.Value(isVisiallyClosed ? 0 : 1)).current
+
+  const [
+    type,
+    name,
+    clippingMask,
+    closed,
+    mask,
+    visible,
+  ] = useLayer(id)
+
 
   useEffect(() => {
     Animated.timing(closeAnimation, { toValue: isVisiallyClosed ? 0 : 1, duration: 200, useNativeDriver: false }).start()
@@ -92,20 +118,21 @@ const LayerView = ({ id, level, itemHeight, isVisiallyClosed }: LayerViewProps) 
     opacity: closeAnimation,
     zIndex: closeAnimation.interpolate({ inputRange: [0, 0.01], outputRange: [-1, 2], extrapolate: 'clamp' })
   }
+
   return (
     <Animated.View {...panResponder.panHandlers} style={[addStyle, styles.layerViewContainer]}>
       <View style={[styles.layerInnerContainer, { marginLeft: 16 * level }]}>
         <ControlSideIcons
-          isGroup={layer.type === LayerType.GROUP}
+          isGroup={type === LayerType.GROUP}
           panResponderHandlers={handlerEvents}
           onPress={toggleGroupClosed}
-          layerHasClippingMaskEnabled={layer.clippingMask}
-          isClosed={layer.closed} />
+          layerHasClippingMaskEnabled={clippingMask}
+          isClosed={closed} />
         <PreviewBox
           onPress={onPreviewBox}
           panResponderHandlers={handlerEvents}
           selected={selected && !maskEditing} />
-        {layer.mask
+        {mask
           ? <>
             <View style={styles.layerDot} />
             <PreviewBox
@@ -115,11 +142,11 @@ const LayerView = ({ id, level, itemHeight, isVisiallyClosed }: LayerViewProps) 
             /></>
           : null}
       </View>
-      <LayerViewTitle name={layer.name} visible={layer.visible} />
+      <LayerViewTitle name={name} visible={visible} />
       <EyeButton
         panResponderHandlers={handlerEvents}
         onPress={toggleLayerVisible}
-        visible={layer.visible} />
+        visible={visible} />
     </Animated.View>
   )
 }

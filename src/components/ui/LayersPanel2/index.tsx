@@ -16,6 +16,7 @@ import Theme from '../../Theme'
 import { Styles } from '../Styles'
 import { LayerProperties } from './LayerProperties'
 import { LayersList } from './LayersList'
+import { overlayLog } from '../../DebugOverlay'
 
 type LayerDragTitleProps = {
   totalHeight: number
@@ -136,7 +137,6 @@ export const LayersPanel2 = () => {
   }
 
   const panelTop = Theme.headerHeight + Theme.getStatusBarHeight()
-
   return (<Animated.View style={[styles.layersPanel, {
     opacity: visibilityAnimation, top: visibilityAnimation.interpolate({
       inputRange: [0, .01], outputRange: [panelTop + layout.height, panelTop],

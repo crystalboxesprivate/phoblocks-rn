@@ -15,7 +15,8 @@ import { LayerType, LayerActions } from './src/core/application/redux/layer';
 import { Config } from './src/config';
 import { FloatingPanelManager } from './src/components/ui/FloatingPanel';
 import { UIAction } from './src/core/application/redux/ui';
-import { Viewport2 } from './src/components/Viewport';
+import { Viewport2 } from './src/components/Viewport/v2';
+import { RenderView } from './src/components/Viewport/v2/RenderView';
 
 
 const Phoblocks = () => {
@@ -31,7 +32,7 @@ const Phoblocks = () => {
       <DebugOverlay />
       <Viewport2 />
       <UILayout />
-      {/*  */}
+      {/*   */}
     </View>
   )
 }

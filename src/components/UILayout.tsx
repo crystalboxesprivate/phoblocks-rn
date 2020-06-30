@@ -16,16 +16,17 @@ const UILayout = () => {
     left: 0,
   }}>
     <Header />
+
     <Toolbar />
     <LayersToolbar />
-
     <LayersPanel2 />
-
     <LayersThumbnailsPanelAnimated />
 
     {/*
     
     
+
+
 
     
     */}

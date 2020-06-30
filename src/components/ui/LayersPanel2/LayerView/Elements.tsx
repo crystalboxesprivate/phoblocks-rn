@@ -97,7 +97,7 @@ export const ControlSideIcons = ({ onPress, panResponderHandlers, isGroup, layer
   const touchFunc = () => {
     if (isGroup && onPress) {
       onPress()
-      Animated.timing(rotationValue, { toValue: isClosed ? 0 : 1, duration: 200 }).start()
+      Animated.timing(rotationValue, { toValue: isClosed ? 0 : 1, duration: 200, useNativeDriver: false }).start()
     }
   }
 
