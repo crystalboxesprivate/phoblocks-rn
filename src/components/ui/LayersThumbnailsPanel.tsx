@@ -132,12 +132,12 @@ export const LayersThumbnailsPanelAnimated = connect((state: PhoblocksState) => 
   useEffect(() => {
     Animated.timing(animatedValue, {
       toValue: layerThumbnailsOpened ? 1 : 0,
-      duration: 100
+      duration: 100, useNativeDriver: false
     }).start()
 
     Animated.timing(offsetValue, {
       toValue: layerPropertiesButton ? 1 : 0,
-      duration: 100
+      duration: 100, useNativeDriver: false
     }).start()
   })
 

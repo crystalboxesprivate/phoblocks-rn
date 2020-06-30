@@ -3,7 +3,6 @@ import { View, Platform, StatusBar, StyleSheet, } from 'react-native';
 import { DebugOverlay, overlayLog } from './src/components/DebugOverlay';
 import TouchEventLoader from './src/components/TouchEventLoader'
 import { Events, initializeEvents } from './src/core/events';
-import RenderView from './src/components/Renderer/RenderView';
 import Theme from './src/components/Theme';
 import UILayout from './src/components/UILayout'
 
@@ -16,19 +15,13 @@ import { LayerType, LayerActions } from './src/core/application/redux/layer';
 import { Config } from './src/config';
 import { FloatingPanelManager } from './src/components/ui/FloatingPanel';
 import { UIAction } from './src/core/application/redux/ui';
-import { Viewport } from './src/components/Renderer/Viewport';
+import { Viewport2 } from './src/components/Viewport';
 
 
 const Phoblocks = () => {
   useEffect(() => {
-
     if (!Config.statusBarVisible) {
       StatusBar.setHidden(true, 'slide')
-    }
-    return () => {
-      Events.removeListener('touchstart', (e: any) => {
-        overlayLog(JSON.stringify(e))
-      })
     }
   })
 
@@ -36,11 +29,9 @@ const Phoblocks = () => {
     <View style={styles.main}>
       <FloatingPanelManager />
       <DebugOverlay />
-      <Viewport>
-        <RenderView />
-      </Viewport>
-      <TouchEventLoader style={{ zIndex: 2 }} />
+      <Viewport2 />
       <UILayout />
+      {/*  */}
     </View>
   )
 }
@@ -49,14 +40,13 @@ const styles = StyleSheet.create({
   main: {
     backgroundColor: Theme.bgColor,
     flex: 1,
-    ...(
-      Platform.OS === 'web' ? { overflow: 'hidden' } : {}
-    )
+    ...(Platform.OS === 'web' ? { overflow: 'hidden' } : {})
   }
 })
 
 
 export default function App() {
+
   initializeEvents()
   const store = createStore(Combined)
 
@@ -101,8 +91,8 @@ export default function App() {
   store.dispatch(UIAction.layersListButton())
   // store.dispatch(UIAction.layerPropertiesButton())
 
-  return (
-    <Provider store={store}>
-      <Phoblocks />
-    </Provider>)
+
+  return (<Provider store={store}>
+    <Phoblocks />
+  </Provider>)
 }

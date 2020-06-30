@@ -30,8 +30,8 @@ export enum ColorMode {
 
 export class DocumentDimensions {
   units = DocumentUnits.PIXELS
-  width = 1920
-  height = 1080
+  width = 640
+  height = 480
   resolution = 72
   resolutionUnits = ResolutionUnits.PPI
 }
@@ -39,7 +39,7 @@ export class DocumentDimensions {
 export class Document {
   closed = false
   name = 'Untitled-1'
-  dimensions = new DocumentDimensions()
+  dimensions = new DocumentDimensions
   colorMode = ColorMode.RGB8
   layersRegistry = []
 }

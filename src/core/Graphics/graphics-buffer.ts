@@ -1,20 +1,19 @@
 
-
-enum GraphicsBufferType {
+export enum GraphicsBufferType {
   VERTEX = 'vertex',
   INDEX = 'index'
 }
-class GraphicsBuffer {
+
+export class GraphicsBuffer {
   gl: WebGL2RenderingContext
   type: GraphicsBufferType
   buffer: WebGLBuffer | null
 
 
-  constructor(gl: WebGL2RenderingContext, type?: GraphicsBufferType, data?: Array<number>) {
+  constructor(gl: WebGL2RenderingContext, type?: GraphicsBufferType) {
     this.gl = gl
     this.type = type || GraphicsBufferType.VERTEX
     this.buffer = gl.createBuffer()
-    if (data) { this.setData(data) }
   }
 
   get glBufferType() {
@@ -25,12 +24,10 @@ class GraphicsBuffer {
     }
   }
 
-  setData(data: Array<number> | Float32Array) {
+  setData(data: Float32Array | Uint16Array) {
     const gl = this.gl
     gl.bindBuffer(this.glBufferType, this.buffer)
-    gl.bufferData(this.glBufferType, new Float32Array(data), gl.STATIC_DRAW)
+    gl.bufferData(this.glBufferType, data, gl.STATIC_DRAW)
     gl.bindBuffer(this.glBufferType, null)
   }
 }
-
-export { GraphicsBuffer, GraphicsBufferType }

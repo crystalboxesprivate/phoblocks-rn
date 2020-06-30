@@ -34,7 +34,7 @@ const LayerView = ({ id, level, itemHeight, isVisiallyClosed }: LayerViewProps) 
   const closeAnimation = useRef(new Animated.Value(isVisiallyClosed ? 0 : 1)).current
 
   useEffect(() => {
-    Animated.timing(closeAnimation, { toValue: isVisiallyClosed ? 0 : 1, duration: 200 }).start()
+    Animated.timing(closeAnimation, { toValue: isVisiallyClosed ? 0 : 1, duration: 200, useNativeDriver: false }).start()
   }, [isVisiallyClosed])
 
   const dispatch = useDispatch()

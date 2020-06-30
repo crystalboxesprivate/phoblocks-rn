@@ -29,7 +29,7 @@ type LayerDragTitleProps = {
 const LayerDragTitle = ({ totalHeight, canDrag, listVisible, divisor, setDivisor, setDivisorCommit }: LayerDragTitleProps) => {
   const opacityAnim = useRef(new Animated.Value(listVisible ? 1 : 0)).current
   useEffect(() => {
-    Animated.timing(opacityAnim, { toValue: listVisible ? 1 : 0, duration: 100 }).start()
+    Animated.timing(opacityAnim, { toValue: listVisible ? 1 : 0, duration: 100, useNativeDriver: false }).start()
   })
   const divisorStart = useRef({ divisor, posY: 0, down: false }).current
   return (
@@ -118,9 +118,9 @@ export const LayersPanel2 = () => {
     const visiblityToValue = isVisible ? 1 : 0
     if (previousVisibilityState.listVisible && !previousVisibilityState.propertiesVisible && !listVisible && !propertiesVisible) {
     } else {
-      Animated.timing(divisorAnimation, { toValue: getDivisorToValue(), duration: 200 }).start()
+      Animated.timing(divisorAnimation, { toValue: getDivisorToValue(), duration: 200, useNativeDriver: false }).start()
     }
-    Animated.timing(visibilityAnimation, { toValue: visiblityToValue, duration: 200 }).start()
+    Animated.timing(visibilityAnimation, { toValue: visiblityToValue, duration: 200, useNativeDriver: false }).start()
 
     previousVisibilityState.isVisible = isVisible
     previousVisibilityState.listVisible = listVisible

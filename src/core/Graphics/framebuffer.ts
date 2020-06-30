@@ -1,8 +1,18 @@
-import Graphics from './Graphics'
-import Image from './Image'
-import { TransformStack } from './TransformStack'
+import { TransformStack } from './transform-stack'
+import { getGL, setFramebuffer, setViewport } from './context'
 
-class Framebuffer extends Image {
+class Image {
+  texture: WebGLTexture | null = null
+  width = 1
+  height = 1
+
+  draw(x: number, y: number, w: number, h: number) {
+    // TODO implement draw image
+    // Graphics.drawImage(this, x, y, w, h)
+  }
+}
+
+export class Framebuffer extends Image {
   fb: WebGLFramebuffer | null = null
   transformStack: TransformStack
   constructor() {
@@ -12,11 +22,11 @@ class Framebuffer extends Image {
 
   release() {
     if (this.texture != null) {
-      Graphics.gl.deleteTexture(this.texture)
+      getGL().deleteTexture(this.texture)
       this.texture = null
     }
     if (this.fb != null) {
-      Graphics.gl.deleteFramebuffer(this.fb)
+      getGL().deleteFramebuffer(this.fb)
       this.fb = null
     }
   }
@@ -27,7 +37,7 @@ class Framebuffer extends Image {
     this.width = width
     this.height = height
 
-    let gl = Graphics.gl
+    let gl = getGL()
     // create to render to
     const targetTexture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, targetTexture);
@@ -56,26 +66,25 @@ class Framebuffer extends Image {
   }
 
   begin() {
-    let gl = Graphics.gl
-    Graphics.currentFbo = this
+    let gl = getGL()
+    setFramebuffer(this)
     gl.bindFramebuffer(gl.FRAMEBUFFER, this.fb);
-    Graphics.setViewport(0, 0, this.width, this.height)
+    setViewport(0, 0, this.width, this.height)
   }
 
   end() {
-    let gl = Graphics.gl
-    Graphics.currentFbo = null
+    let gl = getGL()
+    setFramebuffer(null)
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    Graphics.setViewport()
+    setViewport()
   }
 
   dumpImage() {
-    let gl = Graphics.gl
+    let gl = getGL()
     let width = this.width
     let height = this.height
     // Create a framebuffer backed by the texture
     gl.bindFramebuffer(gl.FRAMEBUFFER, this.fb);
-
     // Read the contents of the framebuffer
     var data = new Uint8Array(width * height * 4);
     gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, data);

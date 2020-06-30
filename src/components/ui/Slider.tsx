@@ -75,7 +75,7 @@ class Slider extends React.Component<SliderProps, { sliderWidth: number, value: 
 
   componentDidUpdate = () => {
     if (this.state.sliderWidth == 0) return
-    Animated.timing(this.animatedValue, { toValue: this.getValue01(), duration: 150 }).start()
+    Animated.timing(this.animatedValue, { toValue: this.getValue01(), duration: 150, useNativeDriver: false }).start()
     previousSliderValues.set(this.props.id, { width: this.state.sliderWidth, previous: this.getValue01() })
   }
 
@@ -96,9 +96,9 @@ class Slider extends React.Component<SliderProps, { sliderWidth: number, value: 
           Events.invoke(this.props.parentScrollViewId + '_disable')
         }
 
-        Animated.timing(this.circleAnim, { toValue: 1, duration: 100 }).start()
+        Animated.timing(this.circleAnim, { toValue: 1, duration: 100, useNativeDriver: false }).start()
         const px = getNormalizedPosition(e)
-        Animated.timing(this.animatedValue, { toValue: px, duration: 100 }).start(() => {
+        Animated.timing(this.animatedValue, { toValue: px, duration: 100, useNativeDriver: false }).start(() => {
           previousSliderValues.set(id, { width: this.state.sliderWidth, previous: px })
           if (setValue != null) {
             setValue(this.from01(px))
@@ -106,7 +106,7 @@ class Slider extends React.Component<SliderProps, { sliderWidth: number, value: 
         })
       }}
       onResponderRelease={e => {
-        Animated.timing(this.circleAnim, { toValue: 0, duration: 100 }).start()
+        Animated.timing(this.circleAnim, { toValue: 0, duration: 100, useNativeDriver: false }).start()
         if (this.props.parentScrollViewId != null) {
           Events.invoke(this.props.parentScrollViewId + '_enable')
         }

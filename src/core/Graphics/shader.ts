@@ -1,4 +1,42 @@
+import { getGL } from './context'
 import { mat4 } from 'gl-matrix'
+
+function err(msg: string) { console.error(msg) }
+
+export function createShader(vtxSrc: string, fragSrc: string) {
+  const gl = getGL()
+  let getGlShader = function (shaderSource: string, shaderType: number) {
+    const shader = gl.createShader(shaderType)
+    if (!shader) {
+      return null
+    }
+    gl.shaderSource(shader, shaderSource)
+    gl.compileShader(shader)
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+      // errorCallback = errorCallback || err
+      err(`Compile error of ${shader}: ${gl.getShaderInfoLog(shader)}`)
+      gl.deleteShader(shader)
+      return null
+    }
+    return shader
+  }
+  let program = gl.createProgram()
+  if (!program) { return new Shader(gl, null as unknown as WebGLProgram) }
+
+  let sh = getGlShader(vtxSrc, gl.VERTEX_SHADER)
+  if (!sh) { return new Shader(gl, program) }
+  gl.attachShader(program, sh)
+
+  sh = getGlShader(fragSrc, gl.FRAGMENT_SHADER)
+  if (!sh) { return new Shader(gl, program) }
+  gl.attachShader(program, sh)
+
+  gl.linkProgram(program)
+  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+    err(`Link error: ${gl.getProgramInfoLog(program)}`)
+  }
+  return new Shader(gl, program)
+}
 
 enum UniformType {
   FLOAT = 'float',
@@ -8,15 +46,15 @@ enum UniformType {
   MAT4 = 'mat4'
 }
 
-class Shader {
+export class Shader {
   gl: WebGL2RenderingContext
   program: WebGLProgram
   uniforms: Map<string, [UniformType, any]>
   textures: Map<string, WebGLTexture>
 
-  constructor(gl: WebGL2RenderingContext, program: WebGLProgram) {
+  constructor(gl: WebGL2RenderingContext, program?: WebGLProgram) {
     this.gl = gl
-    this.program = program
+    this.program = <WebGLProgram>program
     this.uniforms = new Map()
     this.textures = new Map()
   }
@@ -57,11 +95,9 @@ class Shader {
       return newId
     }
 
-    Object.entries(this.uniforms).map(x => {
-      const id = validateId(x[0])
-      const type = x[1][0]
-      const value = x[1][1]
 
+    this.uniforms.forEach(([type, value], nameid) => {
+      const id = validateId(nameid)
 
       switch (type) {
         case UniformType.FLOAT:
@@ -79,13 +115,13 @@ class Shader {
       }
     })
 
-    Object.entries(this.textures).map((texData, index) => {
-      // 0 is the id (name), 1 is webGL texture
+    let index = 0
+    this.textures.forEach((texture, name) => {
       gl.activeTexture(gl.TEXTURE0 + index);
-      gl.bindTexture(gl.TEXTURE_2D, texData[1]);
-      gl.uniform1i(validateId(texData[0]), index);
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.uniform1i(validateId(name), index);
+      index++
     })
   }
 }
 
-export default Shader

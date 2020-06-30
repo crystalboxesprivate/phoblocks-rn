@@ -1,9 +1,8 @@
+
 import { vec2, vec3, mat4 } from 'gl-matrix'
+import { getWidth, getHeight } from './context'
 
-import Graphics from './Graphics'
-
-
-class Transform {
+export class Transform {
   rotate = 0
   scale = vec2.fromValues(1, 1)
   translate = vec2.create()
@@ -20,7 +19,7 @@ class Transform {
   }
 }
 
-class TransformStack {
+export class TransformStack {
   transforms: Array<Transform> = []
   cachedMatrix = mat4.create()
   isDirtyTransform = true
@@ -28,8 +27,7 @@ class TransformStack {
   get matrix() {
     if (this.isDirtyTransform) {
       this.cachedMatrix = mat4.create()
-      mat4.ortho(this.cachedMatrix, 0, Graphics.resolution.width,
-        Graphics.resolution.height, 0, -1, 1)
+      mat4.ortho(this.cachedMatrix, 0, getWidth(), getHeight(), 0, -1, 1)
       for (let x = this.transforms.length - 1; x >= 0; x--) {
         let transform = this.transforms[x]
         mat4.mul(this.cachedMatrix, this.cachedMatrix, transform.matrix)
@@ -43,5 +41,3 @@ class TransformStack {
     this.isDirtyTransform = true
   }
 }
-
-export { TransformStack, Transform }
