@@ -16,6 +16,7 @@ import { FloatingPanelManager } from './src/components/ui/FloatingPanel';
 import { UIAction } from './src/core/application/redux/ui';
 import { Viewport2 } from './src/components/Viewport';
 import { constructTestDocument } from './src/test-document';
+import { configUserInput } from './src/user-input-desktop';
 
 
 const Phoblocks = () => {
@@ -48,6 +49,7 @@ const styles = StyleSheet.create({
 export default function App() {
   initializeEvents()
   const store = createStore(Combined)
+  configUserInput()
 
   constructTestDocument(store)
 

@@ -18,4 +18,6 @@ export function clearColor(col: Color) {
   _gl?.clearColor(col[0], col[1], col[2], col[3])
   _gl?.clear(getGL().COLOR_BUFFER_BIT)
 }
-export const FLOAT = getGL().FLOAT
+
+// https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Constants
+export const FLOAT = 0x1406

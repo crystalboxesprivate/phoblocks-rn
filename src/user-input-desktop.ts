@@ -19,7 +19,7 @@ function validateKeyCode(code: string) {
   } else { return code; }
 }
 
-const configUserInput = () => {
+export function configUserInput() {
   if (Platform.OS !== 'web') {
     return
   }

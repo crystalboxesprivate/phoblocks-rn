@@ -8,7 +8,7 @@ export type ViewTransform = [[number, number], number, number, (pos: [number, nu
 
 
 type Vec2D = [number, number]
-type Vector2D = { x: number, y: number }
+export type Vector2D = { x: number, y: number }
 
 export const useVectorRef = (initX: number, initY: number): [Vector2D, (x: number, y: number) => void] => {
   const val = useRef({ x: initX, y: initY }).current

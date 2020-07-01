@@ -12,7 +12,6 @@ import { Color } from '../../core/Graphics/color';
 
 export function endFrame() {
   const gl = Graphics.getGL() as ExpoWebGLRenderingContext
-  // gl.flush();
   gl.endFrameEXP();
 }
 
