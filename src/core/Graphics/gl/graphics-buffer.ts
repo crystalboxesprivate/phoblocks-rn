@@ -1,3 +1,4 @@
+import Graphics from ".."
 
 export enum GraphicsBufferType {
   VERTEX = 'vertex',
@@ -10,10 +11,10 @@ export class GraphicsBuffer {
   buffer: WebGLBuffer | null
 
 
-  constructor(gl: WebGL2RenderingContext, type?: GraphicsBufferType) {
-    this.gl = gl
+  constructor(type?: GraphicsBufferType) {
+    this.gl = Graphics.getGL()
     this.type = type || GraphicsBufferType.VERTEX
-    this.buffer = gl.createBuffer()
+    this.buffer = this.gl.createBuffer()
   }
 
   get glBufferType() {

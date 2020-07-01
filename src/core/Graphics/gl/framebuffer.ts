@@ -1,4 +1,4 @@
-import { TransformStack } from './transform-stack'
+import { TransformStack } from '../transform-stack'
 import { getGL, setFramebuffer, setViewport } from './context'
 
 class Image {

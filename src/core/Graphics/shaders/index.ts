@@ -1,7 +1,7 @@
 import image from './image'
 import solid from './solid'
 import sample from './sample'
-import { Shader, createShader } from '../shader'
+import { Shader, createShader } from '../gl/shader'
 import { checkerFrag } from './checker'
 
 export const Shaders = { image, solid, sample }

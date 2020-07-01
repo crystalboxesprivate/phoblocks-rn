@@ -1,5 +1,5 @@
 import { vec2 } from 'gl-matrix'
-import { getCurrentFramebuffer } from './context'
+import { getCurrentFramebuffer } from './gl/context'
 import { TransformStack, Transform } from './transform-stack'
 
 const transformStack = new TransformStack()

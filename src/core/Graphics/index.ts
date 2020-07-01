@@ -3,6 +3,7 @@ import { drawCircle } from './drawing/draw-circle'
 import {
   clearColor,
   getGL,
+  FLOAT,
   setContext,
   setFramebuffer,
   getCurrentFramebuffer,
@@ -10,12 +11,12 @@ import {
   getHeight,
   setViewport,
   isContextInitialized,
-} from './context'
+} from './gl/context'
 import { getRgba, getRandomColor } from './color'
-import { Shader, createShader } from './shader'
-import { GraphicsBuffer, GraphicsBufferType } from './graphics-buffer'
-import { Framebuffer } from './framebuffer'
-import { draw } from './draw'
+import { Shader, createShader } from './gl/shader'
+import { GraphicsBuffer, GraphicsBufferType } from './gl/graphics-buffer'
+import { Framebuffer } from './gl/framebuffer'
+import { draw } from './gl/draw'
 
 const Graphics = {
   clearColor,
@@ -36,7 +37,10 @@ const Graphics = {
   setFramebuffer,
   setViewport,
   Shader,
-  getRandomColor
+  getRandomColor,
+
+  FLOAT,
+
 }
 
 export default Graphics

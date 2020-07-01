@@ -1,10 +1,10 @@
 import { Color, getRgba } from "../color"
-import { Shader, createShader } from '../shader'
+import { Shader, createShader } from '../gl/shader'
 import { pushMatrix, translate, scale, getCurrentMatrix, popMatrix } from '../transform'
 import { getSolidShader } from "../shaders"
-import { getGL, getWidth, getHeight, clearColor, setViewport } from "../context"
-import { GraphicsBuffer, GraphicsBufferType } from "../graphics-buffer"
-import { draw } from '../draw'
+import { getWidth, getHeight, clearColor, setViewport, FLOAT } from "../gl/context"
+import { GraphicsBuffer, GraphicsBufferType } from "../gl/graphics-buffer"
+import { draw } from '../gl/draw'
 import { glsl } from "../shaders/glsl"
 
 
@@ -19,10 +19,9 @@ type DrawCircleData = {
 let drawCircleData: DrawCircleData | null = null
 
 export function drawCircle(x: number, y: number, r: number, color: Color, shader?: Shader | null) {
-  const gl = getGL()
   if (!drawCircleData) {
     drawCircleData = {
-      vertexBuffer: new GraphicsBuffer(getGL(), GraphicsBufferType.VERTEX),
+      vertexBuffer: new GraphicsBuffer(GraphicsBufferType.VERTEX),
       shader: getSolidShader(),
       size: 0
     }
@@ -42,7 +41,9 @@ export function drawCircle(x: number, y: number, r: number, color: Color, shader
       drawCircleData.size += 3
     }
 
-    if (!drawCircleData.vertexBuffer) { drawCircleData.vertexBuffer = new GraphicsBuffer(gl) }
+    if (!drawCircleData.vertexBuffer) {
+      drawCircleData.vertexBuffer = new GraphicsBuffer()
+    }
     drawCircleData.vertexBuffer.setData(new Float32Array(verts))
   }
 
@@ -62,7 +63,7 @@ export function drawCircle(x: number, y: number, r: number, color: Color, shader
 
   draw(shader, ['position',], [{
     size: 2,
-    glType: gl.FLOAT,
+    glType: FLOAT,
     normalized: false,
     stride: 0,
     offset: 0,

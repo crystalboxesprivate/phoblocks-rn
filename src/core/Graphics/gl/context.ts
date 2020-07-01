@@ -1,5 +1,5 @@
 import { Framebuffer } from './framebuffer'
-import { Color, getRgba } from './color'
+import { Color, getRgba } from '../color'
 
 let _gl: WebGL2RenderingContext | null = null
 let _fbo: Framebuffer | null = null
@@ -18,3 +18,4 @@ export function clearColor(col: Color) {
   _gl?.clearColor(col[0], col[1], col[2], col[3])
   _gl?.clear(getGL().COLOR_BUFFER_BIT)
 }
+export const FLOAT = getGL().FLOAT

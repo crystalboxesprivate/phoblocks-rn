@@ -1,11 +1,10 @@
 import { Color, getRgba } from "../color"
-import { Shader, createShader } from '../shader'
+import { Shader, createShader } from '../gl/shader'
 import { pushMatrix, translate, scale, getCurrentMatrix, popMatrix } from '../transform'
 import { getSolidShader } from "../shaders"
-import { getGL, getWidth, getHeight, clearColor, setViewport } from "../context"
-import { GraphicsBuffer, GraphicsBufferType } from "../graphics-buffer"
-import { draw } from '../draw'
-import { glsl } from "../shaders/glsl"
+import { FLOAT } from "../gl/context"
+import { GraphicsBuffer, GraphicsBufferType } from "../gl/graphics-buffer"
+import { draw } from '../gl/draw'
 
 type DrawRectData = {
   vertexBuffer: GraphicsBuffer
@@ -16,11 +15,10 @@ type DrawRectData = {
 let drawRectData: DrawRectData | null = null
 
 export function drawRect(x: number, y: number, width: number, height: number, color: Color, shader?: Shader | null) {
-  const gl = getGL()
   if (!drawRectData) {
     drawRectData = {
-      vertexBuffer: new GraphicsBuffer(getGL(), GraphicsBufferType.VERTEX),
-      indexBuffer: new GraphicsBuffer(getGL(), GraphicsBufferType.INDEX),
+      vertexBuffer: new GraphicsBuffer(GraphicsBufferType.VERTEX),
+      indexBuffer: new GraphicsBuffer(GraphicsBufferType.INDEX),
       shader: getSolidShader()
     }
     drawRectData.vertexBuffer.setData(new Float32Array([
@@ -46,7 +44,7 @@ export function drawRect(x: number, y: number, width: number, height: number, co
 
   draw(shader, ['position',], [{
     size: 2,
-    glType: gl.FLOAT,
+    glType: FLOAT,
     normalized: false,
     stride: 0,
     offset: 0,

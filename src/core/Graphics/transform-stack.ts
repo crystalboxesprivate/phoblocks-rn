@@ -1,6 +1,6 @@
 
 import { vec2, vec3, mat4 } from 'gl-matrix'
-import { getWidth, getHeight } from './context'
+import { getWidth, getHeight } from './gl/context'
 
 export class Transform {
   rotate = 0
