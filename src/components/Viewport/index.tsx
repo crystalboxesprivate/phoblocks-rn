@@ -4,26 +4,34 @@ import WebView from "react-native-webview"
 import { useHtmlSource, useTouchEventHandler, CustomTouchEvent } from "./webview-hooks"
 import { GLView } from "expo-gl"
 import Graphics from "../../core/Graphics"
-import { useNavigationResponder } from "./hooks"
+import { useNavigationResponder, useBoolRef } from "./hooks"
 import { usePSR, usePSR2, useDocumentSize } from "./viewport-state"
 import React, { useRef, useEffect } from "react"
 import { overlayLog } from "../DebugOverlay"
 import { useGlView, endFrame, clearToBackgroundColor } from "./gl-hooks"
+import { getCheckerShader } from "../../core/Graphics/shaders"
+
+const useToolState = (): [(x: number, y: number) => void, () => void] => {
+  const [isActive, setIsActive] = useBoolRef(false)
+  const invokeTool = (x: number, y: number) => {
+    if (!isActive) {
+      setIsActive(true)
+    }
+  }
+  const invalidateTool = () => {
+    if (!isActive) { return }
+    setIsActive(false)
+  }
+  return [invokeTool, invalidateTool]
+}
 
 export const Viewport2 = () => {
-  const htmlSource = useHtmlSource()
   const viewTransform = usePSR2()
-  const [onTouchStart, onTouchMove, onTouchEnd] = useNavigationResponder(viewTransform)
+  const [gesture, onTouchStart, onTouchMove, onTouchEnd] = useNavigationResponder(viewTransform)
   const [position, scale, rotation, setPosition, ,] = viewTransform
   const [width, height] = useDocumentSize()
-  const penForce = useRef(1)
-  const [, webViewProps] = useTouchEventHandler((e: CustomTouchEvent) => {
-    if (e.touches) {
-      for (let i = 0; i < e.touches.length; i++) {
-        penForce.current = e.touches[i].force || 1
-      }
-    }
-  })
+  const [invokeTool, invalidateTool] = useToolState()
+
 
   const panResponderHandlers = {
     onStartShouldSetResponder: (e: GestureResponderEvent) => true,
@@ -35,30 +43,44 @@ export const Viewport2 = () => {
     },
     onResponderMove: (event: GestureResponderEvent) => {
       onTouchMove(event)
+      if (!gesture.active) {
+        invokeTool(event.nativeEvent.pageX, event.nativeEvent.pageY)
+      }
     },
     onResponderRelease: (event: GestureResponderEvent) => {
       onTouchEnd(event)
+      invalidateTool()
     }
   }
 
   const resetPositionToCenter = () => {
     const gl = Graphics.getGL()
-    const fullWidth = gl.drawingBufferWidth
-    const fullHeight = gl.drawingBufferHeight
-    overlayLog('fullWidth: ' + fullWidth)
-    overlayLog('fullHeight: ' + fullHeight)
-    overlayLog('Them width: ' + Theme.getFullWidth())
-    overlayLog('Them height: ' + Theme.getFullHeight())
+    const fullWidth = Theme.getFullWidth()
+    const fullHeight = Theme.getFullHeight()
     const newPos: [number, number] = [fullWidth / 2 - width / 2, fullHeight / 2 - height / 2]
     setPosition([newPos[0], newPos[1]])
   }
 
   const [initialized, onGlContextCreate] = useGlView(_ => {
     resetPositionToCenter()
-    Graphics.clearColor(22)
-    Graphics.drawRect(20, 20, 100, 100, [0.2, 0.3, 0.1, 1])
+    const shader = getCheckerShader()
+    Graphics.clearColor(1)
+    shader.setVector('aspect', [Graphics.getWidth() / Graphics.getHeight(), 1 / scale, 0])
+    Graphics.drawRect(0, 0, Graphics.getWidth(), Graphics.getHeight(), [0.5, 0.5, 0.5, 1], shader)
+
+    Graphics.drawCircle(50, 50, 50, 0.50)
     endFrame()
   })
+
+  // useEffect(() => {
+  //   if (initialized) {
+  //     const shader = getCheckerShader()
+  //     Graphics.clearColor(1)
+  //     shader.setVector('aspect', [Graphics.getWidth() / Graphics.getHeight(), 1 / scale, 0])
+  //     Graphics.drawRect(0, 0, Graphics.getWidth(), Graphics.getHeight(), [0.5, 0.5, 0.5, 1], shader)
+  //     endFrame()
+  //   }
+  // }, [position, scale, rotation])
 
 
   const getViewStyle = (): StyleProp<ViewStyle> => ({
@@ -70,27 +92,16 @@ export const Viewport2 = () => {
   })
 
 
-  return <View style={{
-    position: 'absolute',
-
-    width: Theme.getFullWidth(),
-    height: Theme.getFullHeight(),
-  }}
-    {...panResponderHandlers}
-  >
+  return <View style={styles.container} {...panResponderHandlers}>
     <GLView style={getViewStyle()} onContextCreate={onGlContextCreate} />
   </View>
 }
 
 
 export const styles = StyleSheet.create({
-  webView2: {
-    backgroundColor: 'rgba(255,255,255,0.0)',
+  container: {
     position: 'absolute',
-    top: 0,
-    left: 0,
     width: Theme.getFullWidth(),
     height: Theme.getFullHeight(),
-    zIndex: 5
   }
 })

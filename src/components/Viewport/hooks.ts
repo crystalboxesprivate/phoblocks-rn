@@ -113,7 +113,8 @@ export const useGesture = (): [Gesture, () => void, (event: GestureResponderEven
   return [gesture, resetGesture, initGesture, updateGesture, endGesture]
 }
 
-export const useNavigationResponder = (viewTransform: ViewTransform): any => {
+export const useNavigationResponder = (viewTransform: ViewTransform):
+  [Gesture, (event: GestureResponderEvent) => void, (event: GestureResponderEvent) => void, (event: GestureResponderEvent) => void] => {
   const [position, scale, rotation, setPosition, setScale, setRotation] = viewTransform
   const [gesture, resetGesture, initGesture, updateGesture, endGesture] = useGesture()
   const [touchStart, setTouchStart] = useVectorRef(0, 0)
@@ -219,7 +220,7 @@ export const useNavigationResponder = (viewTransform: ViewTransform): any => {
     handleTouchEnd(event)
   }
 
-  return [
+  return [gesture,
     onTouchStart,
     onTouchMove,
     onTouchEnd

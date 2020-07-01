@@ -3,13 +3,13 @@ import { glsl } from "./glsl";
 const vert = glsl`
 precision mediump float;
 
-attribute vec3 pos;
+attribute vec3 position;
 uniform mat4 xform;
 varying vec2 uv;
 
 void main() {
-  uv = vec2(pos.x, pos.y);
-  gl_Position = xform * vec4(pos.xy, 0, 1);
+  uv = vec2(position.x, position.y);
+  gl_Position = xform * vec4(position.xy, 0, 1);
 }
 `
 
@@ -29,13 +29,13 @@ void main(void) {
 const uvFlipVert = glsl`
 precision mediump float;
 
-attribute vec3 pos;
+attribute vec3 position;
 uniform mat4 xform;
 varying vec2 uv;
 
 void main() {
-  uv = vec2(pos.x, 1.0 - pos.y);
-  gl_Position = xform * vec4(pos.xy, 0, 1);
+  uv = vec2(position.x, 1.0 - position.y);
+  gl_Position = xform * vec4(position.xy, 0, 1);
 }
 `
 

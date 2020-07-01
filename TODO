@@ -33,9 +33,12 @@
       - [ ] draw framebuffer
   - [ ] add brush tools
     - [ ] tooltip for setting opacity and size
-
   - [ ] overlay log is a draggable window
     - [ ] make as a scrollview
 
 - [ ] Dropdown list: Fix global positioning by using the clicked mouse coordinates
       
+- [ ] Graphics
+  - [ ] draw circle
+  - [ ] make framebuffer, draw circle inside it then draw it on screen
+- [ ] Web navigation with the space bar

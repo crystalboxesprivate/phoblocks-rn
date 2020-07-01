@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { View, Platform, StatusBar, StyleSheet, } from 'react-native';
 import { DebugOverlay, overlayLog } from './src/components/DebugOverlay';
-import TouchEventLoader from './src/components/TouchEventLoader'
 import { Events, initializeEvents } from './src/core/events';
 import Theme from './src/components/Theme';
 import UILayout from './src/components/UILayout'
 
 import { Provider } from 'react-redux'
 import { Combined } from './src/core/application/redux/index'
-import { createStore } from 'redux';
+import { createStore, Store } from 'redux';
 import { DocumentActions } from './src/core/application/redux/document';
 import { ViewportActions } from './src/core/application/redux/ui/viewport';
 import { LayerType, LayerActions } from './src/core/application/redux/layer';
@@ -16,7 +15,7 @@ import { Config } from './src/config';
 import { FloatingPanelManager } from './src/components/ui/FloatingPanel';
 import { UIAction } from './src/core/application/redux/ui';
 import { Viewport2 } from './src/components/Viewport';
-import { RenderView } from './src/components/Viewport/RenderView';
+import { constructTestDocument } from './src/test-document';
 
 
 const Phoblocks = () => {
@@ -31,8 +30,8 @@ const Phoblocks = () => {
       <FloatingPanelManager />
       <DebugOverlay />
       <Viewport2 />
-      <UILayout />
-      {/*   */}
+
+      {/*  <UILayout /> */}
     </View>
   )
 }
@@ -47,51 +46,10 @@ const styles = StyleSheet.create({
 
 
 export default function App() {
-
   initializeEvents()
   const store = createStore(Combined)
 
-  let id = 0
-  const makeLayer = (type: LayerType, parent?: number) => {
-    store.dispatch(DocumentActions.addLayer(type, parent))
-    return id++
-  }
-  // initialize the state here
-  store.dispatch(DocumentActions.setName('Untitled'))
-  store.dispatch(ViewportActions.setZoom(1.05))
-
-  const l = makeLayer(LayerType.LAYER)
-  store.dispatch(LayerActions.setName(l, 'my layer'))
-  store.dispatch(LayerActions.setOpacity(l, 0.5))
-  const l2 = makeLayer(LayerType.LAYER)
-
-  // makeLayer(LayerType.LAYER)
-  // makeLayer(LayerType.LAYER)
-  // makeLayer(LayerType.LAYER)
-  // makeLayer(LayerType.LAYER)
-  // makeLayer(LayerType.LAYER)
-  // makeLayer(LayerType.LAYER)
-  // makeLayer(LayerType.LAYER)
-  // makeLayer(LayerType.LAYER)
-
-  const g = makeLayer(LayerType.GROUP)
-  makeLayer(LayerType.LAYER, g)
-  store.dispatch(DocumentActions.parentLayer(l2, g))
-
-  const g2 = makeLayer(LayerType.GROUP, g)
-  makeLayer(LayerType.LAYER, g2)
-
-  store.dispatch(LayerActions.toggleGroupClosed(g2))
-
-  const l3 = makeLayer(LayerType.LAYER)
-  store.dispatch(LayerActions.setClippingMask(l3, true))
-
-  store.dispatch(LayerActions.addLayerMask(l3))
-  store.dispatch(LayerActions.toggleVisible(l3))
-
-  store.dispatch(UIAction.layersListButton())
-  // store.dispatch(UIAction.layerPropertiesButton())
-
+  constructTestDocument(store)
 
   return (<Provider store={store}>
     <Phoblocks />

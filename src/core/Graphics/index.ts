@@ -1,4 +1,5 @@
 import { drawRect } from './drawing/draw-rect'
+import { drawCircle } from './drawing/draw-circle'
 import {
   clearColor,
   getGL,
@@ -20,6 +21,7 @@ const Graphics = {
   clearColor,
   createShader,
   draw,
+  drawCircle,
   drawRect,
   Framebuffer,
   getCurrentFramebuffer,

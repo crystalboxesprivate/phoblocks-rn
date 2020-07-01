@@ -18,6 +18,8 @@ type DocumentScaleProps = {
   setScale: (zoom: number) => any
 }
 
+// TODO rewrite in hooks
+// TODO fix zoom which is around center
 class DocumentScale_ extends React.Component<DocumentScaleProps, {}> {
   constructor(props: DocumentScaleProps) {
     super(props)

@@ -27,6 +27,7 @@ function fit(value: number, low1: number, high1: number, low2: number, high2: nu
   return low2 + (high2 - low2) * (value - low1) / (high1 - low1);
 }
 
+// TODO rewrite slider with hooks.
 class Slider extends React.Component<SliderProps, { sliderWidth: number, value: number }> {
   bounds = { x: 0, y: 0 }
   sliderContainer: any = (null)
